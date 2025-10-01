@@ -3,7 +3,7 @@ get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
 project(${ProjectId})
 
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 
 # Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -30,6 +30,8 @@ endif()
 
 file (GLOB_RECURSE project_SOURCES CONFIGURE_DEPENDS "src/*.c")
 file (GLOB_RECURSE project_HEADERS CONFIGURE_DEPENDS "src/*.h")
+file (GLOB_RECURSE project_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+file (GLOB_RECURSE project_HEADERS CONFIGURE_DEPENDS "src/*.hpp")
 
 set (project_INCLUDE_DIRS "include")
 foreach (_headerFile ${project_HEADERS})
