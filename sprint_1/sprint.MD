@@ -16,11 +16,11 @@
 | Timer and score               | 2          |
 
 ## Sprint 1 Backlog (Start)
-| Tasks                         | Assigned To | Hours: 9/25 |
+| Tasks                         | Assigned To | Hours: 9/25 | 
 | ----------------------------- | ----------- | ----------- |
 | Networking - Server           | Justin      | 4           |
 | Networking - Game Integration |             | 4           |
-| Basic Game Loop               |             | 1           |
+| Basic Game Loop               | Justin      | 1           |
 | Player Characters             | Mian        | 2           |
 | Environment Layout (Tilemap?) | Javier      | 2           |
 | Text Chat                     | Kelly       | 2           |
