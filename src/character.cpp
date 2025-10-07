@@ -5,13 +5,13 @@ Character::Character(Vector2 startPos, const std::string& assetDir)
       frameCounter(0.0f), frameTime(0.15f), direction(Direction::Down),
       scale(2.0f), isMoving(false)
 {
-    // Load walking animations
+    // Walking pictures
     walkDown = LoadTexture((assetDir + "/run_down.png").c_str());
     walkUp   = LoadTexture((assetDir + "/run_up.png").c_str());
     walkLeft = LoadTexture((assetDir + "/run_left.png").c_str());
     walkRight= LoadTexture((assetDir + "/run_right.png").c_str());
 
-    // Load idle animations
+    // idle pictures
     idleDown = LoadTexture((assetDir + "/idle_down.png").c_str());
     idleUp   = LoadTexture((assetDir + "/idle_up.png").c_str());
     idleLeft = LoadTexture((assetDir + "/idle_left.png").c_str());
@@ -19,6 +19,7 @@ Character::Character(Vector2 startPos, const std::string& assetDir)
 
     currentSprite = &idleDown; // start facing down
 
+    // amt of frames on the sprite sheets
     maxFrames = 8;
     frameWidth  = walkDown.width / maxFrames;
     frameHeight = walkDown.height;
@@ -39,6 +40,7 @@ void Character::Update(float deltaTime) {
     velocity = {0, 0};
     isMoving = false;
 
+    //Keybinds, probably should change to have keybinds elsewhere once we have more controls
     if (IsKeyDown(KEY_W)) { velocity.y = -1; direction = Direction::Up;    isMoving = true; }
     if (IsKeyDown(KEY_S)) { velocity.y =  1; direction = Direction::Down;  isMoving = true; }
     if (IsKeyDown(KEY_A)) { velocity.x = -1; direction = Direction::Left;  isMoving = true; }
@@ -50,7 +52,7 @@ void Character::Update(float deltaTime) {
     float moveSpeed = 200.0f;
     position = Vector2Add(position, Vector2Scale(velocity, moveSpeed * deltaTime));
 
-    // Pick correct sprite sheet
+    // correct sprite sheets
     switch (direction) {
         case Direction::Up:    currentSprite = isMoving ? &walkUp   : &idleUp;   break;
         case Direction::Down:  currentSprite = isMoving ? &walkDown : &idleDown; break;
@@ -58,7 +60,7 @@ void Character::Update(float deltaTime) {
         case Direction::Right: currentSprite = isMoving ? &walkRight: &idleRight;break;
     }
 
-    // Update animation frame
+    // Update frames
     frameCounter += deltaTime;
     if (frameCounter >= frameTime) {
         frameCounter = 0.0f;
