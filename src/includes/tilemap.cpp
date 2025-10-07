@@ -59,6 +59,11 @@ void displayTilemap(int *tilemap, int rows, int cols) {
 
 }
 
+/*
+Saves the tilemap as a 2d array of ints to a text file.
+Currently saves to the debug folder, unsure if this will cause issues later.
+*/
+
 void setTilemap(int *tilemap, int rows, int cols, const char *filename) {
 
     std::ofstream file(filename, std::ofstream::trunc) ;
@@ -92,6 +97,10 @@ void setTilemap(int *tilemap, int rows, int cols, const char *filename) {
 
 }
 
+/*
+Gets tilemap from file and saves it to a 2d array.
+*/
+
 void getTilemap(int *tilemap, int rows, int cols, const char *filename) { 
 
     std::ifstream file(filename) ;
@@ -122,6 +131,12 @@ void getTilemap(int *tilemap, int rows, int cols, const char *filename) {
     return ;
 
 }
+
+/*
+Checks area of tilemap the x and y coordinates are in.
+Returns true if it's a wall, false if not. 
+Could maybe update to be more general in the future (return what type of tile).
+*/
 
 bool isWall(int *tilemap, int rows, int cols, int xpos, int ypos) {
 
