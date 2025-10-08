@@ -3,8 +3,10 @@
 
 #include "game_object.hpp"
 
+
 class TestObject : public virtual GameObject {
     public:
+        int id;
         Vector2 position;
 
         TestObject(Vector2 position) {
@@ -13,6 +15,8 @@ class TestObject : public virtual GameObject {
 
         void Update(float deltaTime) override;
         void Draw() override;
+        bool CheckInWall();
+
 };
 
 #endif

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
 project(${ProjectId})
@@ -26,10 +26,15 @@ if (NOT raylib_FOUND) # If there's none, fetch and build raylib
   endif()
 endif()
 
+FetchContent_Declare(
+  raylib-cpp
+  GIT_REPOSITORY https://github.com/RobLoach/raylib-cpp.git
+  GIT_TAG        master # or specify a specific tag/commit if needed
+)
+FetchContent_MakeAvailable(raylib-cpp)
+
 # Our Project
 
-file (GLOB_RECURSE project_SOURCES CONFIGURE_DEPENDS "src/*.c")
-file (GLOB_RECURSE project_HEADERS CONFIGURE_DEPENDS "src/*.h")
 file (GLOB_RECURSE project_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 file (GLOB_RECURSE project_HEADERS CONFIGURE_DEPENDS "src/*.hpp")
 
@@ -38,12 +43,20 @@ foreach (_headerFile ${project_HEADERS})
   get_filename_component(_dir ${_headerFile} PATH)
   list (APPEND project_INCLUDE_DIRS ${_dir})
 endforeach()
-list (REMOVE_DUPLICATES project_INCLUDE_DIRS)
 
 add_executable(${PROJECT_NAME} ${project_SOURCES})
+target_link_libraries(${PROJECT_NAME} raylib ws2_32)
+target_include_directories(${PROJECT_NAME} PRIVATE ${raylib-cpp_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${project_INCLUDE_DIRS})
+
+#add_executable(server src/shared.cpp src/server.c)
+#target_link_libraries(server raylib ws2_32)
+#target_include_directories(server PRIVATE ${raylib-cpp_SOURCE_DIR}/include)
+#target_include_directories(server PRIVATE ${project_INCLUDE_DIRS})
+
+#target_include_directories(server PRIVATE ${project_INCLUDE_DIRS})
 #set(raylib_VERBOSE 1)
-target_link_libraries(${PROJECT_NAME} raylib)
+
 
 # Web Configurations
 if (${PLATFORM} STREQUAL "Web")

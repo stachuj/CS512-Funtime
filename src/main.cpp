@@ -1,10 +1,14 @@
-#include "raylib.h"
 #include "game_object.hpp"
 #include "test_object.hpp"
+#include "tilemap.hpp"
+#include "chat.hpp"
+
 #include <vector>
-#include "includes/tilemap.hpp"
+#include <raylib-cpp.hpp>
 
 using namespace std;
+
+Chat chat;
 
 int main() {
 
@@ -12,13 +16,17 @@ int main() {
 	// they are pointers so we can have subclasses in the vector
 	vector<GameObject *> objects;
 
-	// Window size
-	int tilemap[12][16] = {0} ;
-	initializeTilemap((int*)tilemap, 12, 16) ;
-	setTilemap((int*)tilemap, 12, 16, "testfile.txt") ;
-	tilemap[0][0] = 0 ;
-	getTilemap((int*)tilemap, 12, 16, "testfile.txt") ;
+	initializeTilemap() ;
+	//setTilemap("testfile.txt") ;
+	//getTilemap("testfile.txt") ;
 
+    raylib::AudioDevice::Init();
+
+    Sound scream = LoadSound("assets/scream.wav");
+    Sound pew = LoadSound("assets/pew.wav");
+    Sound mew = LoadSound("assets/mew.wav");
+
+	// Window size
 	InitWindow(800, 600, "CS512 Funtime");
 
 	// We will draw a new frame to the screen 60 times per second
@@ -28,8 +36,14 @@ int main() {
 	// Adding a new object to the world
 	// Will have to come up with a nicer way to create and remove objects from the world...
 	objects.push_back(new TestObject({100.0, 400.0}));
+
+	PlaySound(scream);
 	
 	while (!WindowShouldClose()) {
+
+		if (IsKeyPressed(KEY_UP)) PlaySound(scream);
+        if (IsKeyPressed(KEY_DOWN)) PlaySound(pew);
+        if (IsKeyPressed(KEY_LEFT)) PlaySound(mew);
 
 		// This is the real time in seconds since the last update
 		float deltaTime = GetFrameTime();
@@ -37,42 +51,49 @@ int main() {
 		// For every object in objects, call their update function (passing deltaTime)
 		for (auto object: objects)
 			object->Update(deltaTime);
-		Vector2 mousePosition = GetMousePosition();
-		bool mouseOnWall = isWall((int*)tilemap, 12, 16, mousePosition.x, mousePosition.y) ;
-/*
-		for (int i = 0; i < objectCount; i++) {
-			BasicObjectUpdate(&_objects[i], GetFrameTime());
-		}
-			*/
+		
+		chat.Update();
+
+		raylib::Vector2 mousePosition = GetMousePosition();
+		bool mouseOnWall = isWall(mousePosition.x, mousePosition.y);
 		
 		BeginDrawing();
 		{
 			ClearBackground(RAYWHITE);
 
-			displayTilemap((int*)tilemap, 12, 16) ;
+			displayTilemap();
 
 			// For every object in objects, call their draw function
 			for (auto object: objects)
 				object->Draw();
+
+			chat.Draw();
 			
-			DrawText("This is Jeremy the purple square.", 10, 10, 32, BLACK);
-			/*
-			for (int i = 0; i < objectCount; i++) {
-				BasicObjectDraw(_objects[i]);
-			}
-				*/
+			//DrawText("Press 1 for Scream", 280, 150, 20, RED);
+			//DrawText("Press 2 for Pew", 310, 200, 20, BLUE);
+			//DrawText("Press 3 for Mew", 310, 250, 20, DARKGREEN);
 
-			DrawText("Hi team members...!\nDo not be slacking off.\nRemember the importance of SCRUM's principalz.", 10, 10, 32, BLACK);
+			DrawText("This is Jeremy the purple square.",10, 10, 20, RAYWHITE);
 
-			DrawText(TextFormat("Mouse Position: [ X: %.0f, Y: %.0f ]", mousePosition.x, mousePosition.y), 10, 310, 32, BLACK);
+			//DrawText(TextFormat("Sound device initted? %d", raylib::AudioDevice::IsReady()), 2, 2, 20, RAYWHITE);
 
-			DrawText(TextFormat("Is mouse on a wall? %s", mouseOnWall ? "true" : "false"), 10, 510, 32, BLACK);
+			//raylib::DrawText(TextFormat("Mouse Position: [ X: %.0f, Y: %.0f ]", mousePosition.x, mousePosition.y), 10, 310, 32, BLACK);
+
+			//raylib::DrawText(TextFormat("Is mouse on a wall? %s", mouseOnWall ? "true" : "false"), 10, 510, 32, BLACK);
 			
 		}
 		EndDrawing();
 		
+		UnloadSound(scream);
+		UnloadSound(pew);
+		UnloadSound(mew);
+		CloseAudioDevice();
+
+
 	}
 	CloseWindow();
+
+
 
     return 0;
 }
