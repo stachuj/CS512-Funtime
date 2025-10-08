@@ -4,10 +4,8 @@ This project demonstrates an object-oriented game structure, including sprite-ba
 ---
 
 ## Features
-
--  Base `GameObject` class with `Update()` and `Draw()` methods  
-- `TestObject` example that follows the mouse  
--  A character with WASD movement, directional movement and idle animations
+- `TestObject` example that uses mouse controls 
+- A 'Character' class with WASD movement, directional movement and idle animations
 - Lightweight and easy to extend
 - A tilemap
 - Text chat
