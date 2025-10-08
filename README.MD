@@ -3,7 +3,7 @@ This project demonstrates an object-oriented game structure, including sprite-ba
 
 ---
 
-## 🧩 Features
+## Features
 
 -  Base `GameObject` class with `Update()` and `Draw()` methods  
 - `TestObject` example that follows the mouse  
@@ -15,7 +15,7 @@ This project demonstrates an object-oriented game structure, including sprite-ba
 
 ---
 
-## ⚙️ Requirements
+## Requirements
 
 Make sure you have the following installed:
 
