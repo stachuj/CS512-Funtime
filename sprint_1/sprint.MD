@@ -44,23 +44,15 @@ Full‑stack: C++ build, raylib.
 
 ## 2. Meeting Schedule
 
-| Meeting | Date | Time | Notes |
-
-|---------|------|------|-------|
-
-| Sprint Planning | 2025-09-25 | 6:00 PM | Scope Sprint 1, define goal, estimate stories |
-
-| Daily Scrum #1 | 2025-09-27 | 3:00 PM | Standup |
-
-| Daily Scrum #2 | 2025-09-29 | 3:00 PM | Standup |
-
-| Daily Scrum #3 | 2025-10-01 | 3:00 PM | Standup (mid‑sprint snapshot) |
-
-| Daily Scrum #4 | 2025-10-03 | 3:00 PM | Standup |
-
-| Daily Scrum #5 | 2025-10-05 | 3:00 PM | Standup |
-
-| Sprint Retrospective | 2025-10-07 | 2:00 PM | 1‑page brief captured below |
+| Meeting              | Date       | Time    | Notes                                         |
+| -------------------- | ---------- | ------- | --------------------------------------------- |
+| Sprint Planning      | 2025-09-25 | 6:00 PM | Scope Sprint 1, define goal, estimate stories |
+| Daily Scrum #1       | 2025-09-27 | 3:00 PM | Standup                                       |
+| Daily Scrum #2       | 2025-09-29 | 3:00 PM | Standup                                       |
+| Daily Scrum #3       | 2025-10-01 | 3:00 PM | Standup (mid‑sprint snapshot)                 |
+| Daily Scrum #4       | 2025-10-03 | 3:00 PM | Standup                                       |
+| Daily Scrum #5       | 2025-10-05 | 3:00 PM | Standup                                       |
+| Sprint Retrospective | 2025-10-07 | 2:00 PM | 1‑page brief captured below                   |
 
   
 
@@ -121,23 +113,15 @@ Have basic gameplay working as well as some server functionality and basic commu
 
   
 
-| ID | Selected Story | PHours | Owner | Status (start) |
-
-|----|----------------|--------|-------|----------------|
-
-| P1 | Networking - Server | 4 | Justin | Not Started |
-
-| P3 | Basic Game Loop | 1 | Justin | Not Started |
-
-| P4 | Player Characters | 2 | Mian | Not Started |
-
-| P5 | Tilemap | 2 | Javier | Not Started |
-
-| P6 | Text Chat | 2 | Kelly | Not Started |
-
-| P8 | Player Movement | 2 | Mian | Not Started |
-
-| P9 | Sound Effects | 2 | Pradeepthi | Not Started |
+| ID | Selected Story      | PHours | Owner      | Status (start) |
+| -- | ------------------- | ------ | ---------- | -------------- |
+| P1 | Networking - Server | 4      | Justin     | Not Started    |
+| P3 | Basic Game Loop     | 1      | Justin     | Not Started    |
+| P4 | Player Characters   | 2      | Mian       | Not Started    |
+| P5 | Tilemap             | 2      | Javier     | Not Started    |
+| P6 | Text Chat           | 2      | Kelly      | Not Started    |
+| P8 | Player Movement     | 2      | Mian       | Not Started    |
+| P9 | Sound Effects       | 2      | Pradeepthi | Not Started    |
 
   
 
@@ -155,27 +139,17 @@ Have basic gameplay working as well as some server functionality and basic commu
 
 ### 4.1 Sprint Backlog (midpoint)
 
-| ID | Selected Story | Hours | Owner | Status (mid) | Notes |
-
-|----|----------------|-------|-------|--------------|-------|
-
-| P1 | Networking - Server | 4 | Justin | In progress |  |
-
-| P3 | Basic Game Loop | 0 | Justin | Done | Created a test object that follows mouse cursor |
-
-| P4 | Player Characters | 2 | Mian | In progress |  |
-
-| P5 | Tilemap | 2 | Javier | Done | Basic tilemap created along with display function. |
-
-| P6 | Text Chat | 2 | Kelly | In progress |  |
-
-| P8 | Player Movement | 2 | Mian | In progress |  |
-
-| P9 | Sound Effects | 2 | Pradeepthi | In progress |  |
-
-| P10 | Environment Collision | 2 | Javier | Not started | Added to sprint backlog |
-
-| P11 | Map Switching | 2 | Javier | Not started | Added to sprint backlog |
+| ID  | Selected Story        | Hours | Owner      | Status (mid) | Notes                                              |
+| --- | --------------------- | ----- | ---------- | ------------ | -------------------------------------------------- |
+| P1  | Networking - Server   | 4     | Justin     | In progress  |                                                    |
+| P3  | Basic Game Loop       | 0     | Justin     | Done         | Created a test object that follows mouse cursor    |
+| P4  | Player Characters     | 2     | Mian       | In progress  |                                                    |
+| P5  | Tilemap               | 2     | Javier     | Done         | Basic tilemap created along with display function. |
+| P6  | Text Chat             | 2     | Kelly      | In progress  |                                                    |
+| P8  | Player Movement       | 2     | Mian       | In progress  |                                                    |
+| P9  | Sound Effects         | 2     | Pradeepthi | In progress  |                                                    |
+| P10 | Environment Collision | 2     | Javier     | Not started  | Added to sprint backlog                            |
+| P11 | Map Switching         | 2     | Javier     | Not started  | Added to sprint backlog                            |
 
   
 
@@ -195,33 +169,20 @@ Have basic gameplay working as well as some server functionality and basic commu
 
 ### 5.1 Product Backlog (end)
 
-| ID | Story | Hours | Status (end) | Notes |
-
-|----|-------|-------|--------------|-------|
-
-| P1 | Networking - Server | 4 | In progress | Could not successfully integrate nbnet library into project |
-
-| P2 | Networking - Game Integration | 4 | Not started |  |
-
-| P3 | Basic Game Loop | 0 | Done |  |
-
-| P4 | Player Characters | 0 | Done |  |
-
-| P5 | Tilemap | 2 | Done | Tilemap saved in tilemap.cpp rather than main.cpp |
-
-| P6 | Text Chat | 0 | Done | Worked fine on other machines |
-
-| P7 | Player Interactions | 2 | Not started |  |
-
-| P8 | Player Movement | 0 | Done | Some issues with collision to address. |
-
-| P9 | Sound Effects | 0 | Done | Not working on other machines for some reason |
-
-| P10 | Environment Collision | 2 | In progress | Collision with tilemap working with test object, not player |
-
-| P11 | Map Switching | 0 | Done | Save and load tilemaps to and from text files. |
-
-| P12 | Timer and Score | 2 | Not started |  |
+| ID  | Story                         | Hours | Status (end) | Notes                                                       |
+| --- | ----------------------------- | ----- | ------------ | ----------------------------------------------------------- |
+| P1  | Networking - Server           | 4     | In progress  | Could not successfully integrate nbnet library into project |
+| P2  | Networking - Game Integration | 4     | Not started  |                                                             |
+| P3  | Basic Game Loop               | 0     | Done         |                                                             |
+| P4  | Player Characters             | 0     | Done         |                                                             |
+| P5  | Tilemap                       | 2     | Done         | Tilemap saved in tilemap.cpp rather than main.cpp           |
+| P6  | Text Chat                     | 0     | Done         | Worked fine on other machines                               |
+| P7  | Player Interactions           | 2     | Not started  |                                                             |
+| P8  | Player Movement               | 0     | Done         | Some issues with collision to address.                      |
+| P9  | Sound Effects                 | 0     | Done         | Not working on other machines for some reason               |
+| P10 | Environment Collision         | 2     | In progress  | Collision with tilemap working with test object, not player |
+| P11 | Map Switching                 | 0     | Done         | Save and load tilemaps to and from text files.              |
+| P12 | Timer and Score               | 2     | Not started  |                                                             |
 
   
 
@@ -234,29 +195,17 @@ Have basic gameplay working as well as some server functionality and basic commu
 ### 5.2 Sprint Backlog (end)
 
   
-
-| ID | Story | Hours | Owner | Status (end) |
-
-|----|-------|-------|-------|--------------|
-
-| P1 | Networking - Server | 4 | Justin | In progress |
-
-| P3 | Basic Game Loop | 1 | Justin | Done |
-
-| P4 | Player Characters | 2 | Mian | Done |
-
-| P5 | Tilemap | 2 | Javier | Done |
-
-| P6 | Text Chat | 2 | Kelly | Done |
-
-| P8 | Player Movement | 2 | Mian | Done |
-
-| P9 | Sound Effects | 2 | Pradeepthi | Done |
-
-| P10 | Environment Collision | 2 | Javier | Done |
-
-| P11 | Map Switching | 2 | Javier | Done |
-
+| ID  | Story                 | Hours | Owner      | Status (end) |
+| --- | --------------------- | ----- | ---------- | ------------ |
+| P1  | Networking - Server   | 4     | Justin     | In progress  |
+| P3  | Basic Game Loop       | 1     | Justin     | Done         |
+| P4  | Player Characters     | 2     | Mian       | Done         |
+| P5  | Tilemap               | 2     | Javier     | Done         |
+| P6  | Text Chat             | 2     | Kelly      | Done         |
+| P8  | Player Movement       | 2     | Mian       | Done         |
+| P9  | Sound Effects         | 2     | Pradeepthi | Done         |
+| P10 | Environment Collision | 2     | Javier     | Done         |
+| P11 | Map Switching         | 2     | Javier     | Done         |
   
 
 ### 5.3 Burndown Chart (full sprint)
