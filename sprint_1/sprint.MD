@@ -46,7 +46,7 @@ Full‑stack: C++ build, raylib.
 
 | Meeting | Date | Time | Notes |
 
-|-----------------------|------------|---------|-------|
+|---------|------|------|-------|
 
 | Sprint Planning | 2025-09-25 | 6:00 PM | Scope Sprint 1, define goal, estimate stories |
 
@@ -79,7 +79,7 @@ Full‑stack: C++ build, raylib.
 
 | ID | User Story & Acceptance Criteria | Hours | Notes |
 
-|-----|---------------------------------------------|--------|-------|
+|----|----------------------------------|-------|-------|
 
 | P1 |  **As a user,** I should be able to connect to a server where the game should be hosted. **AC:** Program can connect to server. | 4 | Networking - Server |
 
@@ -123,7 +123,7 @@ Have basic gameplay working as well as some server functionality and basic commu
 
 | ID | Selected Story | PHours | Owner | Status (start) |
 
-|-----|----------------|--------|-------|----------------|
+|----|----------------|--------|-------|----------------|
 
 | P1 | Networking - Server | 4 | Justin | Not Started |
 
@@ -157,7 +157,7 @@ Have basic gameplay working as well as some server functionality and basic commu
 
 | ID | Selected Story | Hours | Owner | Status (mid) | Notes |
 
-|-----|----------------|-------|-------|----------------|-------|
+|----|----------------|-------|-------|--------------|-------|
 
 | P1 | Networking - Server | 4 | Justin | In progress |  |
 
@@ -197,7 +197,7 @@ Have basic gameplay working as well as some server functionality and basic commu
 
 | ID | Story | Hours | Status (end) | Notes |
 
-|-----|----------------|-------|-------|----------------|
+|----|-------|-------|--------------|-------|
 
 | P1 | Networking - Server | 4 | In progress | Could not successfully integrate nbnet library into project |
 
@@ -237,7 +237,7 @@ Have basic gameplay working as well as some server functionality and basic commu
 
 | ID | Story | Hours | Owner | Status (end) |
 
-|-----|----------------|-------|-------|----------------|
+|----|-------|-------|-------|--------------|
 
 | P1 | Networking - Server | 4 | Justin | In progress |
 
