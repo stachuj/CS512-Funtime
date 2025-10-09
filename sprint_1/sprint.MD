@@ -68,34 +68,21 @@ Full‑stack: C++ build, raylib.
 
   
   
+| ID  | User Story & Acceptance Criteria                                                                                                                                                                                        | Hours | Notes                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ----------------------------- |
+| P1  | **As a user,** I should be able to connect to a server where the game should be hosted. **AC:** Program can connect to server.                                                                                          | 4     | Networking - Server           |
+| P2  | **As a user,** my game should update and respond to actions performed by other players. **AC:** Server updates based on actions players take.                                                                           | 4     | Networking - Game Integration |
+| P3  | **As a user,** the program should display something once I start it up. **AC:** Display a window using raylib.                                                                                                          | 1     | Basic Game Loop               |
+| P4  | **As a user,** I should have a character that I can use to play the game. **AC:** Display a character object with related sprites.                                                                                      | 2     | Player Characters             |
+| P5  | **As a user,** I should see the area where the game takes place in. **AC:** A 2D array that is displayed by the game as a grid of tiles.                                                                                | 2     | Tilemap                       |
+| P6  | **As a user,** I should be able to read and send messages in a text chat. **AC:** Send and display messages typed by the user.                                                                                          | 2     | Text Chat                     |
+| P7  | **As a user,** my character should be able to interact with objects in the game. **AC:** Player character can interact with items in the map.                                                                           | 2     | Player Interactions           |
+| P8  | **As a user,** I should be able to move my character in the game. **AC:** Move player character using keyboard inputs.                                                                                                  | 2     | Player Movement               |
+| P9  | **As a user,** I should hear sounds while playing the game. **AC:** Play sounds when certain events happen such as pressing a button.                                                                                   | 2     | Sound Effects                 |
+| P10 | **As a user,** my character should stop when encountering an obstacle. **AC:** Player character stops when coming into contact with a wall.                                                                             | 2     | Enivornment Collision         |
+| P11 | **As a user,** I should be able to switch between different levels in the game. **AC:** Save different 2D tilemaps and load them into the game.                                                                         | 2     | Map Switching                 |
+| P12 | **As a user,** I should see both a timer showing how much time has passed and a value representing my score. **AC:** Timer for how long the player is playing, score that increases when user performs certain actions. | 2     | Timer and score               |
 
-| ID | User Story & Acceptance Criteria | Hours | Notes |
-
-|----|----------------------------------|-------|-------|
-
-| P1 |  **As a user,** I should be able to connect to a server where the game should be hosted. **AC:** Program can connect to server. | 4 | Networking - Server |
-
-| P2 |  **As a user,** my game should update and respond to actions performed by other players. **AC:** Server updates based on actions players take. | 4 | Networking - Game Integration |
-
-| P3 |  **As a user,** the program should display something once I start it up. **AC:** Display a window using raylib. | 1 | Basic Game Loop |
-
-| P4 |  **As a user,** I should have a character that I can use to play the game. **AC:** Display a character object with related sprites. | 2 | Player Characters |
-
-| P5 |  **As a user,** I should see the area where the game takes place in. **AC:** A 2D array that is displayed by the game as a grid of tiles. | 2 | Tilemap |
-
-| P6 |  **As a user,** I should be able to read and send messages in a text chat. **AC:** Send and display messages typed by the user. | 2 | Text Chat |
-
-| P7 |  **As a user,** my character should be able to interact with objects in the game. **AC:** Player character can interact with items in the map. | 2 | Player Interactions |
-
-| P8 |  **As a user,** I should be able to move my character in the game. **AC:** Move player character using keyboard inputs. | 2 | Player Movement |
-
-| P9 |  **As a user,** I should hear sounds while playing the game. **AC:** Play sounds when certain events happen such as pressing a button. | 2 | Sound Effects |
-
-| P10 |  **As a user,** my character should stop when encountering an obstacle. **AC:** Player character stops when coming into contact with a wall. | 2 | Enivornment Collision |
-
-| P11 |  **As a user,** I should be able to switch between different levels in the game. **AC:** Save different 2D tilemaps and load them into the game. | 2 | Map Switching |
-
-| P12 |  **As a user,** I should see both a timer showing how much time has passed and a value representing my score. **AC:** Timer for how long the player is playing, score that increases when user performs certain actions. | 2 | Timer and score |
 
   
 
