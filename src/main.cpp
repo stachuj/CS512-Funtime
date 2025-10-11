@@ -42,10 +42,8 @@ int main() {
 	PlaySound(scream);
 	
 	while (!WindowShouldClose()) {
-    Character* player = new Character({400, 300}, "assets");
-    objects.push_back(player);
-
-    while (!WindowShouldClose()) {
+		Character* player = new Character({400, 300}, "assets");
+		objects.push_back(player);
 
 		if (IsKeyPressed(KEY_UP)) PlaySound(scream);
         if (IsKeyPressed(KEY_DOWN)) PlaySound(pew);

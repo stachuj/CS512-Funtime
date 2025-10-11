@@ -1,5 +1,5 @@
 #include "raylib.h"
-
+/*
 int main() {
     const int screenWidth = 800;
     const int screenHeight = 450;
@@ -34,3 +34,4 @@ int main() {
 
     return 0;
 }
+*/
