@@ -3,6 +3,7 @@
 #include "tilemap.hpp"
 #include "chat.hpp"
 
+#include "character.hpp"
 #include <vector>
 #include <raylib-cpp.hpp>
 
@@ -11,10 +12,10 @@ using namespace std;
 Chat chat;
 
 int main() {
-
+    
 	// list of all objects that will be updated and drawn
 	// they are pointers so we can have subclasses in the vector
-	vector<GameObject *> objects;
+	std::vector<GameObject *> objects;
 
 	initializeTilemap() ;
 	//setTilemap("testfile.txt") ;
@@ -33,6 +34,7 @@ int main() {
 	// This will NOT limit physics to 60 ticks per second, so we have to use deltaTime!
 	SetTargetFPS(60);
 
+
 	// Adding a new object to the world
 	// Will have to come up with a nicer way to create and remove objects from the world...
 	objects.push_back(new TestObject({100.0, 400.0}));
@@ -40,6 +42,10 @@ int main() {
 	PlaySound(scream);
 	
 	while (!WindowShouldClose()) {
+    Character* player = new Character({400, 300}, "assets");
+    objects.push_back(player);
+
+    while (!WindowShouldClose()) {
 
 		if (IsKeyPressed(KEY_UP)) PlaySound(scream);
         if (IsKeyPressed(KEY_DOWN)) PlaySound(pew);
