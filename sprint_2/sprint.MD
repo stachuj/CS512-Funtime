@@ -21,10 +21,7 @@
 
 ## 2. Meeting Schedule
 
-| Meeting              | Date       | Time    | Notes                                            |
-| Sprint Planning      | 2025-10-09 | 6:00 PM | Figured out the sprint backlog and assigned work |
-| Daily Scrum #1       | 2025-10-14 | 4:00 PM | Quick check-in after break                       |
-| Daily Scrum #2       | 2025-10-15 | 2:00 PM |  Met in-class                                    |
+Meeting|Date|Time|Notes||Sprint Planning|2025-10-09|6:00 PM|Figured out the sprint backlog and assigned work||Daily Scrum #1|2025-10-14|4:00 PM|Quick check-in after break||Daily Scrum #2|2025-10-15|2:00 PM|Met in-class
 
 ---
 
