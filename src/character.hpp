@@ -37,6 +37,9 @@ public:
 
     void Update(float deltaTime) override;
     void Draw() override;
+    void DrawCollisionBox();
+
+    bool CheckInWall();
 };
 
 #endif

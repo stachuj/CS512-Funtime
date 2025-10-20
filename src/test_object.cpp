@@ -1,5 +1,5 @@
 #include "test_object.hpp"
-#include "tilemap.hpp"
+#include "tilemap/tilemap.hpp"
 
 float signf(float x);
 
