@@ -10,7 +10,18 @@ using namespace std;
 
 Chat chat;
 
+std::string GetAssetsPath() {
+    static std::string assetsPath;
+    if (assetsPath.empty()) {
+        assetsPath = GetApplicationDirectory();
+        assetsPath += "assets/";
+    }
+    return assetsPath;
+}
+
 int main() {
+
+    
     std::vector<GameObject *> objects;
 
     initializeTilemap();
@@ -26,7 +37,7 @@ int main() {
     SetTargetFPS(60);
 
     objects.push_back(new TestObject({100.0, 400.0}));
-    Character* player = new Character({400, 300}, "assets");
+    Character* player = new Character({400, 300}, GetApplicationDirectory() + std::string("assets"));
     objects.push_back(player);
 
     PlaySound(scream);
