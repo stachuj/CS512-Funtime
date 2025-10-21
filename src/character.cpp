@@ -91,7 +91,7 @@ bool Character::CheckInWall() {
     float halfWidth = collisionWidth / 2.0f; // bc of scaling the sprite
     float halfHeight = collisionHeight / 2.0f;
     
-    float cornerSpread = 0.5f; //to move corners left and right
+    float cornerSpread = 0.3f; //to move corners left and right
     
     // Check multiple points around the character's collision rectangle
     return isWall(position.x - halfWidth * cornerSpread, position.y + halfHeight) ||  // bottom left
@@ -135,7 +135,7 @@ void Character::DrawCollisionBox() {
     float halfWidth = collisionWidth / 2.0f;
     float halfHeight = collisionHeight / 2.0f;
     
-    float cornerSpread = 0.5f; 
+    float cornerSpread = 0.3f; 
     
     float pointSize = 4.0f;
     

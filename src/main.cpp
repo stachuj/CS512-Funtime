@@ -44,7 +44,7 @@ int main() {
         chat.Update();
 
         Vector2 mousePosition = GetMousePosition();
-        bool mouseOnWall = isWall(mousePosition.x, mousePosition.y);
+        //bool mouseOnWall = isWall(mousePosition.x, mousePosition.y);
 
         BeginDrawing();
         {
