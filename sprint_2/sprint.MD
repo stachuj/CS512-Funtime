@@ -1,6 +1,6 @@
 
 
-# Sprint 1 Deliverables (10/8–10/21)
+# Sprint 2 Deliverables (10/8–10/21)
 
   
 
@@ -179,8 +179,9 @@ line "Actual" [37, 36, 36, 29, 19]
 ## 6. Retrospective
 
 Had issues merging our work in the end, again. Need to be pushing our work more frequently.
+
 Continuous Integration gave us some weird issues and it's hard coming up with functionality to test.
+
 Didn't get a lot of work done because of the break causing relaxation.
   
-
 ---
