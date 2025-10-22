@@ -75,6 +75,7 @@ int main() {
     Character* player = new Character({400, 300}, GetApplicationDirectory() + std::string("assets"));
     objects.push_back(player);
     objects.push_back(new TestObject({100.0, 400.0}));
+    objects.push_back(new TestObjectAStar({80.0, 80.0}, PathCopy));
 
     // ADDED: game state + collectibles
     GameState gs;                               // holds score & timer
@@ -140,6 +141,7 @@ int main() {
             ClearBackground(RAYWHITE);
 
             // ---- WORLD (no camera mode here) ----
+            displayPath(PathCopy);
             displayTilemap();
             for (auto object: objects)
                 object->Draw();
