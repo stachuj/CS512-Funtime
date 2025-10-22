@@ -1,8 +1,6 @@
 #include "test_object.hpp"
 #include "tilemap.hpp"
 
-float signf(float x);
-
 void TestObject::Update(float deltaTime) {
 
     float speed = Vector2Distance(this->position, GetMousePosition());
@@ -44,7 +42,7 @@ bool TestObject::CheckInWall() {
             isWall(x+widthHeight, y+widthHeight);
 }
 
-float signf(float x) {
+float TestObject::signf(float x) {
     if (x > 0) return 1.0;
     if (x < 0) return -1.0;
     return 0.0;
