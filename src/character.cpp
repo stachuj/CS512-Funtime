@@ -150,4 +150,13 @@ void Character::DrawCollisionBox() {
     //Middle points 
     DrawCircle(position.x, position.y + halfHeight, pointSize, RED);  // bottom center
     DrawCircle(position.x, position.y - halfHeight, pointSize, RED);  // top center
+    
+}
+
+Vector2 Character::GetPosition() const {
+    return position;
+}
+
+Vector2 Character::GetSize() const {
+    return { frameWidth * scale, frameHeight * scale };
 }
