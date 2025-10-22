@@ -3,6 +3,8 @@
 #include "tilemap.hpp"
 #include "chat.hpp"
 #include "character.hpp"
+#include "test_object_A_Star.hpp"
+
 #include <vector>
 #include <raylib.h>
 
@@ -28,11 +30,30 @@ int main() {
 	// they are pointers so we can have subclasses in the vector
     std::vector<GameObject *> objects;
 
-    initializeTilemap();
-	//setTilemap("testfile.txt");
-	//getTilemap("testfile.txt");
+
 
     InitAudioDevice();
+	// initializeTilemap() ;
+	initializeAStarTestTilemap() ;
+	//setTilemap("testfile.txt") ;
+	//getTilemap("testfile.txt") ;
+
+	// Testing A Star to make sure it works
+	std::stack<Pair> Path = AStarSearch(1, 1, 9, 14) ;
+	std::stack<Pair> PathCopy = Path ;
+	string PathString = "The path is: " ;
+	int i = 0 ;
+	while(!Path.empty()) {
+		Pair p = Path.top() ;
+		Path.pop() ;
+		printf("-> (%d,%d) ", p.first, p.second) ;
+		PathString += "(" + to_string(p.first) + ", " + to_string(p.second) + "), " ;
+		i += 1 ;
+		if(i == 9){
+			PathString += "\n" ;
+			i = 0 ;
+		}
+	}
 
     Sound scream = LoadSound("assets/scream.wav");
     Sound pew = LoadSound("assets/pew.wav");
@@ -48,10 +69,18 @@ int main() {
     objects.push_back(player);
     objects.push_back(new TestObject({100.0, 400.0}));
 
-    PlaySound(scream);
-    
-    while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_UP)) PlaySound(scream);
+	// A Star test object doesn't work for some reason... will try again later
+	objects.push_back(new TestObjectAStar({80.0, 80.0}, PathCopy));
+
+
+
+	PlaySound(scream);
+	
+	while (!WindowShouldClose()) {
+		// Character* player = new Character({400, 300}, "assets");
+		// objects.push_back(player);
+
+		if (IsKeyPressed(KEY_UP)) PlaySound(scream);
         if (IsKeyPressed(KEY_DOWN)) PlaySound(pew);
         if (IsKeyPressed(KEY_LEFT)) PlaySound(mew);
 
@@ -71,7 +100,8 @@ int main() {
         {
             ClearBackground(RAYWHITE);
 
-            displayTilemap();
+			displayPath(PathCopy) ;
+			displayTilemap();
 
             // For every object in objects, call their draw function
             for (auto object: objects)
@@ -83,7 +113,10 @@ int main() {
 			//DrawText("Press 2 for Pew", 310, 200, 20, BLUE);
 			//DrawText("Press 3 for Mew", 310, 250, 20, DARKGREEN);
 
-			DrawText("This is Jeremy the purple square..",10, 10, 20, RAYWHITE);
+			DrawText("This is Jeremy the purple square.",10, 10, 20, RAYWHITE);
+
+			DrawText(PathString.c_str(), 10, 60, 20, RED) ;
+
 			//DrawText(TextFormat("Sound device initted? %d", raylib::AudioDevice::IsReady()), 2, 2, 20, RAYWHITE);
 
 			//raylib::DrawText(TextFormat("Mouse Position: [ X: %.0f, Y: %.0f ]", mousePosition.x, mousePosition.y), 10, 310, 32, BLACK);
