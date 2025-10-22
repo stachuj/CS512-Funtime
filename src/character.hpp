@@ -15,6 +15,8 @@ class Character : public GameObject {
 public:
     Vector2 position;
     Vector2 velocity;
+    Vector2 GetPosition() const;
+    Vector2 GetSize() const;
     
     // Reorder these to match constructor initialization order:
     int currentFrame;

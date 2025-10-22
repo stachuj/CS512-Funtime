@@ -1,4 +1,3 @@
-#include "raylib.h"
 /*
 int main() {
     const int screenWidth = 800;
@@ -35,3 +34,12 @@ int main() {
     return 0;
 }
 */
+
+#include <raylib.h>
+int main() {
+    InitWindow(640, 480, "sound_test");
+    InitAudioDevice();
+    CloseAudioDevice();
+    CloseWindow();
+    return 0;
+}

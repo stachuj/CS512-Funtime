@@ -1,2 +1,4 @@
 build/
+.vscode//build
+sound_test
 .vscode/
