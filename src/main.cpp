@@ -8,6 +8,9 @@
 
 using namespace std;
 
+
+
+
 Chat chat;
 
 std::string GetAssetsPath() {
@@ -80,8 +83,7 @@ int main() {
 			//DrawText("Press 2 for Pew", 310, 200, 20, BLUE);
 			//DrawText("Press 3 for Mew", 310, 250, 20, DARKGREEN);
 
-			DrawText("This is Jeremy the purple square.",10, 10, 20, RAYWHITE);
-
+			DrawText("This is Jeremy the purple square..",10, 10, 20, RAYWHITE);
 			//DrawText(TextFormat("Sound device initted? %d", raylib::AudioDevice::IsReady()), 2, 2, 20, RAYWHITE);
 
 			//raylib::DrawText(TextFormat("Mouse Position: [ X: %.0f, Y: %.0f ]", mousePosition.x, mousePosition.y), 10, 310, 32, BLACK);
