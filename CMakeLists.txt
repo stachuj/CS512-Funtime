@@ -29,11 +29,12 @@ if(WIN32)
     message(STATUS "Found Raylib on Windows: ${RAYLIB_INCLUDE_DIR}")
     set(RAYLIB_LIBRARIES ${RAYLIB_LIBRARY})
     set(RAYLIB_INCLUDE_DIRS ${RAYLIB_INCLUDE_DIR})
-    
 else()
     # Linux/macOS - use pkg-config
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(RAYLIB REQUIRED raylib)
+    # pkg_check_modules defines:
+    # RAYLIB_LIBRARIES, RAYLIB_INCLUDE_DIRS, RAYLIB_CFLAGS_OTHER
 endif()
 
 # Directories
@@ -41,7 +42,9 @@ include_directories(src)
 include_directories(src/chat)
 include_directories(src/tilemap)
 
-# Executable (remove .hpp files - only .cpp files should be here)
+# -----------------------
+# Main Game Executable
+# -----------------------
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/character.cpp
@@ -76,6 +79,4 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 # Copy assets so sprites work
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
-)
+    ${
