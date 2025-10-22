@@ -9,6 +9,7 @@ enum class GameState {
     Exit
 };
 
+/*
 int main() {
     InitWindow(800, 600, "Menu + Pause Button Example");
     SetTargetFPS(60);
@@ -93,3 +94,4 @@ int main() {
     CloseWindow();
     return 0;
 }
+*/

@@ -4,7 +4,7 @@
 #include "chat.hpp"
 #include "character.hpp"
 #include <vector>
-#include <raylib.h>
+#include <raylib-cpp.hpp>
 
 using namespace std;
 
