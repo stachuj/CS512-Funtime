@@ -9,10 +9,16 @@ class TestObjectAStar : public virtual TestObject {
     public:
         std::stack<Pair> path ;
         Pair nextTile  ;
-        Pair previousTile = std::make_pair(-1, -1) ;
+        //Pair previousTile = std::make_pair(-1, -1) ;
         float xDirection, yDirection = 0 ;
 
         TestObjectAStar() {} ;
+
+        TestObjectAStar(Vector2 pos) {
+            this->position = pos ;
+            this-> nextTile = std::make_pair(getTilePos(position.y), getTilePos(position.x)) ;
+            printf("Starting tile: (%d, %d)",getTilePos(position.y), getTilePos(position.x)) ;
+        } ;
 
         TestObjectAStar(Vector2 pos, std::stack<Pair> pa) {
             this->position = pos ;

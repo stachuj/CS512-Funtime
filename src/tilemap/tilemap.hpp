@@ -20,9 +20,9 @@ void setTilemap(const char *filename) ;
 
 void getTilemap(const char *filename) ;
 
-int getTilePos(int pos) ;
+int getTilePos(float pos) ;
 
-bool isWall(int xpos, int ypos) ;
+bool isWall(float xpos, float ypos) ;
 
 int getRows() ;
 
