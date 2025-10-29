@@ -4,13 +4,12 @@
 #include "chat.hpp"
 #include "character.hpp"
 #include "test_object_A_Star.hpp"
-
+#include "menu.hpp"
 #include <vector>
 #include <raylib.h>
-
-#include "GameState.h"     // ADDED (score/timer state)
-#include "HUD.h"           // ADDED (draw score/timer)
-#include "Collectible.h"   // ADDED (collectibles)
+#include "GameState.h"   
+#include "HUD.h"
+#include "Collectible.h"
 #include <string>
 
 using namespace std;
@@ -27,164 +26,220 @@ std::string GetAssetsPath() {
 }
 
 int main() {
-
-    // list of all objects that will be updated and drawn
-    // they are pointers so we can have subclasses in the vector
-    std::vector<GameObject *> objects;
-
-    initializeTilemap();
-    //setTilemap("testfile.txt");
-    //getTilemap("testfile.txt");
-
+    // Window initialization
+    InitWindow(800, 600, "CS512 Funtime");
+    SetTargetFPS(60);
     InitAudioDevice();
-	// initializeTilemap() ;
-	initializeAStarTestTilemap() ;
-	//setTilemap("testfile.txt") ;
-	//getTilemap("testfile.txt") ;
 
-	// Testing A Star to make sure it works
-	// std::stack<Pair> Path = AStarSearch(1, 1, 9, 14) ;
-	// std::stack<Pair> PathCopy = Path ;
-    /*
-	string PathString = "The path is: " ;
-	int i = 0 ;
-	while(!Path.empty()) {
-		Pair p = Path.top() ;
-		Path.pop() ;
-		printf("-> (%d,%d) ", p.first, p.second) ;
-		PathString += "(" + to_string(p.first) + ", " + to_string(p.second) + "), " ;
-		i += 1 ;
-		if(i == 9){
-			PathString += "\n" ;
-			i = 0 ;
-		}
-	}
-    */
+    // variables for every sstate
+    enum class AppState {
+        MAIN_MENU,
+        PLAYING,
+        PAUSED,
+        RULES,
+        GAME_OVER
+    };
+    
+    AppState currentAppState = AppState::MAIN_MENU;
+    Menu mainMenu(MenuType::Main);
+    Menu pauseMenu(MenuType::Pause);
+    
+    // Game objects
+    std::vector<GameObject *> objects;
+    initializeTilemap();
+    initializeAStarTestTilemap();
 
-    // Variables for updating AStar
-    std::stack<Pair> Path ;
-    float testEnemyUpdate = 3.0 ;
-    int mouseRowTile = 0 ;
-    int mouseColTile = 0 ;
+    // AStar
+    std::stack<Pair> Path;
+    float testEnemyUpdate = 3.0;
+    int targetRowTile = 0;
+    int targetColTile = 0;
 
+    // Load sounds
     Sound scream = LoadSound("assets/scream.wav");
     Sound pew    = LoadSound("assets/pew.wav");
     Sound mew    = LoadSound("assets/mew.wav");
-
-    // ADDED: pickup SFX for collectibles (reuse existing)
     Sound pickupSfx = pew;
 
-    // Window size
-    InitWindow(800, 600, "CS512 Funtime");
-    SetTargetFPS(60);
-
-    // Adding a new object to the world
-    // Will have to come up with a nicer way to create and remove objects from the world...
+    // Create game objects
     Character* player = new Character({500, 300}, GetApplicationDirectory() + std::string("assets"));
     objects.push_back(player);
     objects.push_back(new TestObject({100.0, 400.0}));
-    TestObjectAStar* testEnemy = new TestObjectAStar({80.0, 80.0}) ;
-    objects.push_back(testEnemy) ;
+    TestObjectAStar* testEnemy = new TestObjectAStar({80.0, 80.0});
+    objects.push_back(testEnemy);
 
-    // ADDED: game state + collectibles
-    GameState gs;                               // holds score & timer
-    std::vector<Collectible> collectibles;      // pickups to score
+    // Game state
+    GameState gameStats;  
+    std::vector<Collectible> collectibles;
     Collectibles::SpawnRandom(collectibles, 10, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
 
-    // ADDED: chat toggle (hidden by default)
     bool chatVisible = false;
-
     PlaySound(scream);
-    
+
+    // Main game loop
     while (!WindowShouldClose()) {
-        if (IsKeyPressed(KEY_UP))   PlaySound(scream);
-        if (IsKeyPressed(KEY_DOWN)) PlaySound(pew);
-        if (IsKeyPressed(KEY_LEFT)) PlaySound(mew);
-
-        // Toggle chat overlay with C
-        if (IsKeyPressed(KEY_C)) chatVisible = !chatVisible;
-
-        // This is the real time in seconds since the last update
         float deltaTime = GetFrameTime();
 
-        // ADDED: countdown timer
-        if (!gs.timeUp) {
-            gs.timeRemaining -= deltaTime;
-            if (gs.timeRemaining <= 0.0f) {
-                gs.timeRemaining = 0.0f;
-                gs.timeUp = true;
+        // State machine
+        switch (currentAppState) {
+            case AppState::MAIN_MENU: {
+                MenuResult result = mainMenu.Update();
+                if (result == MenuResult::StartGame) {
+                    currentAppState = AppState::PLAYING;
+                    gameStats.score = 0;
+                    gameStats.timeRemaining = gameStats.timeLimit;
+                    gameStats.timeUp = false;
+                    for (auto& c : collectibles) c.active = true;
+                } else if (result == MenuResult::Rules) {
+                    currentAppState = AppState::RULES;
+                } else if (result == MenuResult::Exit) {
+                    break; // Exit game
+                }
+                break;
+            }
+
+            case AppState::PLAYING: {
+                // PAUSE BUTTON
+                if (IsKeyPressed(KEY_P)) {
+                    currentAppState = AppState::PAUSED;
+                    break;
+                }
+
+                // Chat, probably should delete
+                if (IsKeyPressed(KEY_C)) chatVisible = !chatVisible;
+
+                // Timer
+                if (!gameStats.timeUp) {
+                    gameStats.timeRemaining -= deltaTime;
+                    if (gameStats.timeRemaining <= 0.0f) {
+                        gameStats.timeRemaining = 0.0f;
+                        gameStats.timeUp = true;
+                        currentAppState = AppState::GAME_OVER;
+                    }
+                }
+
+                // Astar code for enemy chasing player's position
+                testEnemyUpdate -= deltaTime;
+                Vector2 wasdCharacterPos = player->GetPosition();
+                if (!isWall(wasdCharacterPos.x, wasdCharacterPos.y)) {
+                    targetColTile = getTilePos(wasdCharacterPos.x);
+                    targetRowTile = getTilePos(wasdCharacterPos.y);
+                }
+                if (testEnemyUpdate <= 0.0) {
+                    testEnemyUpdate = 3.0;
+                    int testEnemyColTile = getTilePos(testEnemy->position.x);
+                    int testEnemyRowTile = getTilePos(testEnemy->position.y);
+                    Path = AStarSearch(testEnemyRowTile, testEnemyColTile, targetRowTile, targetColTile);
+                    testEnemy->setPath(Path);
+                }
+
+                // Update game objects
+                for (auto object : objects)
+                    object->Update(deltaTime);
+                
+                // Chat update
+                chat.Update();
+
+                // Player bounds for pickup collision
+                Rectangle playerBounds;
+                Vector2 p = player->GetPosition();
+                Vector2 sz = player->GetSize();
+                playerBounds = { p.x - sz.x * 0.5f, p.y - sz.y * 0.5f, sz.x, sz.y };
+
+                // Update collectibles
+                if (!gameStats.timeUp) {
+                    int newlyPicked = Collectibles::Update(collectibles, &playerBounds, pickupSfx);
+                    gameStats.score += newlyPicked * gameStats.pointsPerCollectible;
+                }
+
+                break;
+            }
+
+            case AppState::PAUSED: {
+                MenuResult result = pauseMenu.Update();
+                if (result == MenuResult::Resume) {
+                    currentAppState = AppState::PLAYING;
+                } else if (result == MenuResult::Rules) {
+                    currentAppState = AppState::RULES;
+                } else if (result == MenuResult::Exit) {
+                    currentAppState = AppState::MAIN_MENU;
+                }
+                break;
+            }
+
+            case AppState::RULES: {
+                if (IsKeyPressed(KEY_P) || IsKeyPressed(KEY_ENTER)) {
+                    currentAppState = AppState::MAIN_MENU;
+                }
+                break;
+            }
+
+            case AppState::GAME_OVER: {
+                if (IsKeyPressed(KEY_ENTER)) {
+                    currentAppState = AppState::MAIN_MENU;
+                } else if (IsKeyPressed(KEY_R)) {
+                    currentAppState = AppState::PLAYING;
+                    gameStats.score = 0;
+                    gameStats.timeRemaining = gameStats.timeLimit;
+                    gameStats.timeUp = false;
+                    for (auto& c : collectibles) c.active = true;
+                }
+                break;
             }
         }
 
-        // Update AStar for testEnemy every 3 seconds
-        // Update AStar for testEnemy every 3 seconds - NOW CHASES WASD CHARACTER
-        testEnemyUpdate -= deltaTime ;
-        Vector2 wasdCharacterPos = player->GetPosition() ;  // Get WASD character position
-        if(!isWall(wasdCharacterPos.x, wasdCharacterPos.y)){
-            mouseColTile = getTilePos(wasdCharacterPos.x) ;  // Use character's X position
-            mouseRowTile = getTilePos(wasdCharacterPos.y) ;  // Use character's Y position
-        }
-        if(testEnemyUpdate <= 0.0) {
-            testEnemyUpdate = 3.0 ;
-            int testEnemyColTile = getTilePos(testEnemy->position.x) ;
-            int testEnemyRowTile = getTilePos(testEnemy->position.y) ;
-            Path = AStarSearch(testEnemyRowTile, testEnemyColTile, mouseRowTile, mouseColTile) ;
-            testEnemy->setPath(Path) ;
-}
-
-        // Update game objects
-        for (auto object: objects)
-            object->Update(deltaTime);
-        
-        // Chat update (kept)
-        chat.Update();
-
-        Vector2 mousePosition = GetMousePosition();
-        bool mouseOnWall = isWall(mousePosition.x, mousePosition.y);
-
-        // ADDED: player bounds for pickup collision
-        Rectangle playerBounds;
-        Vector2 p  = player->GetPosition();
-        Vector2 sz = player->GetSize();
-        playerBounds = { p.x - sz.x * 0.5f, p.y - sz.y * 0.5f, sz.x, sz.y };
-
-        if (!gs.timeUp) {
-            int newlyPicked = Collectibles::Update(collectibles, &playerBounds, pickupSfx);
-            gs.score += newlyPicked * gs.pointsPerCollectible;
-        }
-
-        // Optional restart after time up
-        if (gs.timeUp && IsKeyPressed(KEY_R)) {
-            gs.score = 0;
-            gs.timeRemaining = gs.timeLimit;
-            gs.timeUp = false;
-            for (auto& c : collectibles) c.active = true; // reactivate all
-        }
-        
+        // Rendering
         BeginDrawing();
         {
             ClearBackground(RAYWHITE);
 
-            // ---- WORLD (no camera mode here) ----
-            displayPath(Path);
-            displayTilemap();
-            for (auto object: objects)
-                object->Draw();
+            switch (currentAppState) {
+                case AppState::MAIN_MENU:
+                    mainMenu.Draw();
+                    break;
 
-            // ---- UI (screen space) ----
-            // Draw collectibles ABOVE world (so always visible), then HUD, then optional chat on top
-            Collectibles::Draw(collectibles);
+                case AppState::PLAYING:
 
-            // Draw HUD before chat so chat panel never covers score/time
-            DrawHUD(gs);
+                    displayPath(Path);
+                    displayTilemap();
+                    for (auto object : objects)
+                        object->Draw();
+                    Collectibles::Draw(collectibles);
+                    DrawHUD(gameStats);  
+                    if (chatVisible) chat.Draw();
+                    DrawText("This is Jeremy the purple square..", 10, 10, 20, BLACK);
+                    DrawText("Press C to toggle chat", 10, 36, 16, DARKGRAY);
+                    break;
 
-            // Only draw the chat overlay if toggled on (press C)
-            if (chatVisible) {
-                chat.Draw();
+                case AppState::PAUSED:
+                    displayTilemap();
+                    for (auto object : objects)
+                        object->Draw();
+                    Collectibles::Draw(collectibles);
+                    DrawHUD(gameStats); 
+                    // Transparent wile paused
+                    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 128});
+                    pauseMenu.Draw();
+                    break;
+
+                case AppState::RULES:
+                    ClearBackground(BLACK);
+                    DrawText("GAME RULES", 250, 100, 40, RAYWHITE);
+                    DrawText("1. Collect all items before time runs out", 100, 200, 24, RAYWHITE);
+                    DrawText("2. Avoid the enemy chasing you", 100, 240, 24, RAYWHITE);
+                    DrawText("3. Use WASD to move your character", 100, 280, 24, RAYWHITE);
+                    DrawText("4. Press P to pause the game", 100, 320, 24, RAYWHITE);
+                    DrawText("Press P or ENTER to go back", 200, 450, 24, GRAY);
+                    break;
+
+                case AppState::GAME_OVER:
+                    ClearBackground(BLACK);
+                    DrawText("GAME OVER", 280, 150, 40, RAYWHITE);
+                    DrawText(TextFormat("Final Score: %d", gameStats.score), 300, 250, 30, RAYWHITE);
+                    DrawText("Press ENTER for Main Menu", 250, 350, 24, GRAY);
+                    DrawText("Press R to Restart", 280, 400, 24, GRAY);
+                    break;
             }
-
-            DrawText("This is Jeremy the purple square..", 10, 10, 20, BLACK); // BLACK for readability
-            DrawText("Press C to toggle chat", 10, 36, 16, DARKGRAY);
         }
         EndDrawing();
     }
