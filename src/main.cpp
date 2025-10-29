@@ -117,11 +117,12 @@ int main() {
         }
 
         // Update AStar for testEnemy every 3 seconds
+        // Update AStar for testEnemy every 3 seconds - NOW CHASES WASD CHARACTER
         testEnemyUpdate -= deltaTime ;
-        Vector2 mouse = GetMousePosition() ;
-        if(!isWall(mouse.x, mouse.y)){
-            mouseColTile = getTilePos(mouse.x) ;
-            mouseRowTile = getTilePos(mouse.y) ;
+        Vector2 wasdCharacterPos = player->GetPosition() ;  // Get WASD character position
+        if(!isWall(wasdCharacterPos.x, wasdCharacterPos.y)){
+            mouseColTile = getTilePos(wasdCharacterPos.x) ;  // Use character's X position
+            mouseRowTile = getTilePos(wasdCharacterPos.y) ;  // Use character's Y position
         }
         if(testEnemyUpdate <= 0.0) {
             testEnemyUpdate = 3.0 ;
@@ -129,7 +130,7 @@ int main() {
             int testEnemyRowTile = getTilePos(testEnemy->position.y) ;
             Path = AStarSearch(testEnemyRowTile, testEnemyColTile, mouseRowTile, mouseColTile) ;
             testEnemy->setPath(Path) ;
-        }
+}
 
         // Update game objects
         for (auto object: objects)
