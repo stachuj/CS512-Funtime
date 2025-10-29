@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <set>
+#include <cfloat>
 
 int tilemap[12][16] = {1};
 int tilemapRows = 12;
@@ -182,7 +183,7 @@ int getTilePos(float pos) {
     return tilePos ;
 }
 
-/*
+/*#include <cstdio>
 Checks area of tilemap the x and y coordinates are in.
 Returns true if it's a wall, false if not. 
 Could maybe update to be more general in the future (return what type of tile).

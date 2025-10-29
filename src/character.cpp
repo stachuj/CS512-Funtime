@@ -125,7 +125,7 @@ void Character::Draw() {
     DrawTexturePro(*currentSprite, src, dest, origin, 0.0f, WHITE);
 
     // Draw collision box 
-    // DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
+     DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
 }
 
 void Character::DrawCollisionBox() {

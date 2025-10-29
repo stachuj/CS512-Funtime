@@ -80,7 +80,7 @@ int main() {
 
     // Adding a new object to the world
     // Will have to come up with a nicer way to create and remove objects from the world...
-    Character* player = new Character({400, 300}, GetApplicationDirectory() + std::string("assets"));
+    Character* player = new Character({500, 300}, GetApplicationDirectory() + std::string("assets"));
     objects.push_back(player);
     objects.push_back(new TestObject({100.0, 400.0}));
     TestObjectAStar* testEnemy = new TestObjectAStar({80.0, 80.0}) ;

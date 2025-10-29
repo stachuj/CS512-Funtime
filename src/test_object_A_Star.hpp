@@ -3,6 +3,7 @@
 
 #include "test_object.hpp"
 #include "tilemap.hpp"
+#include <cstdio>
 
 class TestObjectAStar : public virtual TestObject {
 
