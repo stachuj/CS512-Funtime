@@ -1,4 +1,4 @@
-#include "Collectible.h"
+#include "collectible.hpp"
 #include <algorithm>
 #include <cmath>
 

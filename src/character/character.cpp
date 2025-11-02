@@ -1,5 +1,5 @@
 #include "character.hpp"
-#include "tilemap/tilemap.hpp"
+#include "tilemap.hpp"
 
 Character::Character(Vector2 startPos, const std::string& assetDir)
     : position(startPos), velocity({0, 0}), currentFrame(0),
@@ -125,7 +125,7 @@ void Character::Draw() {
     DrawTexturePro(*currentSprite, src, dest, origin, 0.0f, WHITE);
 
     // Draw collision box 
-    // DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
+     DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
 }
 
 void Character::DrawCollisionBox() {

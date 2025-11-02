@@ -1,5 +1,5 @@
 #include "test_object.hpp"
-#include "tilemap/tilemap.hpp"
+#include "tilemap.hpp"
 
 void TestObject::Update(float deltaTime) {
 

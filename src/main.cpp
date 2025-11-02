@@ -8,23 +8,14 @@
 #include <vector>
 #include <raylib.h>
 
-#include "GameState.h"     // ADDED (score/timer state)
-#include "HUD.h"           // ADDED (draw score/timer)
-#include "Collectible.h"   // ADDED (collectibles)
+#include "game_state.hpp"     // ADDED (score/timer state)
+#include "hud.hpp"           // ADDED (draw score/timer)
+#include "collectible.hpp"   // ADDED (collectibles)
 #include <string>
 
 using namespace std;
 
 Chat chat;
-
-std::string GetAssetsPath() {
-    static std::string assetsPath;
-    if (assetsPath.empty()) {
-        assetsPath = GetApplicationDirectory();
-        assetsPath += "assets/";
-    }
-    return assetsPath;
-}
 
 int main() {
 
@@ -59,9 +50,11 @@ int main() {
 		}
 	}
 
-    Sound scream = LoadSound("assets/scream.wav");
-    Sound pew    = LoadSound("assets/pew.wav");
-    Sound mew    = LoadSound("assets/mew.wav");
+    objects.push_back(new TestObjectAStar({80, 80.0}, PathCopy));
+
+    Sound scream = LoadSound("../../assets/scream.wav");
+    Sound pew    = LoadSound("../../assets/pew.wav");
+    Sound mew    = LoadSound("../../assets/mew.wav");
 
     // ADDED: pickup SFX for collectibles (reuse existing)
     Sound pickupSfx = pew;
@@ -72,9 +65,9 @@ int main() {
 
     // Adding a new object to the world
     // Will have to come up with a nicer way to create and remove objects from the world...
-    Character* player = new Character({400, 300}, GetApplicationDirectory() + std::string("assets"));
+    Character* player = new Character({600, 300}, std::string("../../assets"));
     objects.push_back(player);
-    objects.push_back(new TestObject({100.0, 400.0}));
+    //objects.push_back(new TestObject({100.0, 400.0}));
 
     // ADDED: game state + collectibles
     GameState gs;                               // holds score & timer
@@ -109,12 +102,6 @@ int main() {
         // Update game objects
         for (auto object: objects)
             object->Update(deltaTime);
-        
-        // Chat update (kept)
-        chat.Update();
-
-        Vector2 mousePosition = GetMousePosition();
-        bool mouseOnWall = isWall(mousePosition.x, mousePosition.y);
 
         // ADDED: player bounds for pickup collision
         Rectangle playerBounds;
@@ -139,8 +126,9 @@ int main() {
         {
             ClearBackground(RAYWHITE);
 
-            // ---- WORLD (no camera mode here) ----
             displayTilemap();
+            displayPath(PathCopy) ;
+
             for (auto object: objects)
                 object->Draw();
 
@@ -151,13 +139,7 @@ int main() {
             // Draw HUD before chat so chat panel never covers score/time
             DrawHUD(gs);
 
-            // Only draw the chat overlay if toggled on (press C)
-            if (chatVisible) {
-                chat.Draw();
-            }
 
-            DrawText("This is Jeremy the purple square..", 10, 10, 20, BLACK); // BLACK for readability
-            DrawText("Press C to toggle chat", 10, 36, 16, DARKGRAY);
         }
         EndDrawing();
     }
