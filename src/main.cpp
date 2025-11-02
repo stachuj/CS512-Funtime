@@ -34,8 +34,9 @@ int main() {
 	//getTilemap("testfile.txt") ;
 
 	// Testing A Star to make sure it works
-	std::stack<Pair> Path = AStarSearch(1, 1, 9, 14) ;
-	std::stack<Pair> PathCopy = Path ;
+	// std::stack<Pair> Path = AStarSearch(1, 1, 9, 14) ;
+	// std::stack<Pair> PathCopy = Path ;
+    /*
 	string PathString = "The path is: " ;
 	int i = 0 ;
 	while(!Path.empty()) {
@@ -49,12 +50,17 @@ int main() {
 			i = 0 ;
 		}
 	}
+    */
 
-    objects.push_back(new TestObjectAStar({80, 80.0}, PathCopy));
+    // Variables for updating AStar
+    std::stack<Pair> Path ;
+    float testEnemyUpdate = 3.0 ;
+    int mouseRowTile = 0 ;
+    int mouseColTile = 0 ;
 
-    Sound scream = LoadSound("../../assets/scream.wav");
-    Sound pew    = LoadSound("../../assets/pew.wav");
-    Sound mew    = LoadSound("../../assets/mew.wav");
+    Sound scream = LoadSound("assets/scream.wav");
+    Sound pew    = LoadSound("assets/pew.wav");
+    Sound mew    = LoadSound("assets/mew.wav");
 
     // ADDED: pickup SFX for collectibles (reuse existing)
     Sound pickupSfx = pew;
@@ -67,7 +73,9 @@ int main() {
     // Will have to come up with a nicer way to create and remove objects from the world...
     Character* player = new Character({600, 300}, std::string("../../assets"));
     objects.push_back(player);
-    //objects.push_back(new TestObject({100.0, 400.0}));
+    objects.push_back(new TestObject({100.0, 400.0}));
+    TestObjectAStar* testEnemy = new TestObjectAStar({80.0, 80.0}) ;
+    objects.push_back(testEnemy) ;
 
     // ADDED: game state + collectibles
     GameState gs;                               // holds score & timer
@@ -99,6 +107,21 @@ int main() {
             }
         }
 
+        // Update AStar for testEnemy every 3 seconds
+        testEnemyUpdate -= deltaTime ;
+        Vector2 mouse = GetMousePosition() ;
+        if(!isWall(mouse.x, mouse.y)){
+            mouseColTile = getTilePos(mouse.x) ;
+            mouseRowTile = getTilePos(mouse.y) ;
+        }
+        if(testEnemyUpdate <= 0.0) {
+            testEnemyUpdate = 3.0 ;
+            int testEnemyColTile = getTilePos(testEnemy->position.x) ;
+            int testEnemyRowTile = getTilePos(testEnemy->position.y) ;
+            Path = AStarSearch(testEnemyRowTile, testEnemyColTile, mouseRowTile, mouseColTile) ;
+            testEnemy->setPath(Path) ;
+        }
+
         // Update game objects
         for (auto object: objects)
             object->Update(deltaTime);
@@ -126,6 +149,8 @@ int main() {
         {
             ClearBackground(RAYWHITE);
 
+            // ---- WORLD (no camera mode here) ----
+            displayPath(Path);
             displayTilemap();
             displayPath(PathCopy) ;
 

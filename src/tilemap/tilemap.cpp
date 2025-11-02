@@ -176,7 +176,7 @@ void getTilemap(const char *filename) {
 
 // Converts position on the window to the tile in the tilemap. 
 
-int getTilePos(int pos) {
+int getTilePos(float pos) {
     int tilePos = pos / 50 ;
 
     return tilePos ;
@@ -188,7 +188,7 @@ Returns true if it's a wall, false if not.
 Could maybe update to be more general in the future (return what type of tile).
 */
 
-bool isWall(int xpos, int ypos) {
+bool isWall(float xpos, float ypos) {
 
     int colpos = getTilePos(xpos) ;
     int rowpos = getTilePos(ypos) ;
@@ -280,41 +280,29 @@ std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int
         j = p.second.second;
         closedList[i][j] = true;
 
-        printf("A Star on tile (%d, %d)\n", i, j) ;
+        //printf("A Star on tile (%d, %d)\n", i, j) ;
 
         double gNew, hNew, fNew;
 
-        //----------- 1st Successor (North) ------------
-
-        // Only process this cell if this is a valid one
+        // Check if North cell is valid
         if (isValid(i - 1, j) == true) {
-            // If the destination cell is the same as the
-            // current successor
+            // If we're at our destination, make our path and return it
             if ((i - 1) == rowDestination && j == colDestination) {
-                // Set the Parent of the destination cell
                 cellDetails[i - 1][j].parent_i = i;
                 cellDetails[i - 1][j].parent_j = j;
                 Path = tracePath(cellDetails, rowDestination, colDestination);
                 foundDest = true;
                 return Path ;
             }
+            // Else we calculate the f, g, and h values and add it to the list
+            // if it isn't on there or the f value is better. 
             else if (closedList[i - 1][j] == false && tilemap[i - 1][j] != 1) {
                 gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i - 1, j, rowDestination, colDestination);
                 fNew = gNew + hNew;
-
-                // If it isn’t on the open list, add it to
-                // the open list. Make the current square
-                // the parent of this square. Record the
-                // f, g, and h costs of the square cell
-                //                OR
-                // If it is on the open list already, check
-                // to see if this path to that square is
-                // better, using 'f' cost as the measure.
                 if (cellDetails[i - 1][j].f == FLT_MAX
                     || cellDetails[i - 1][j].f > fNew) {
                     openList.insert(std::make_pair(fNew, std::make_pair(i - 1, j)));
-
                     // Update the details of this cell
                     cellDetails[i - 1][j].f = fNew;
                     cellDetails[i - 1][j].g = gNew;
@@ -325,33 +313,22 @@ std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int
             }
         }
 
-        //----------- 2nd Successor (South) ------------
-
-        // Only process this cell if this is a valid one
+        // Check if South cell is valid
         if (isValid(i + 1, j) == true) {
-            // If the destination cell is the same as the
-            // current successor
+            // If we're at our destination, make our path and return it
             if ((i + 1) == rowDestination && j == colDestination) {
-                // Set the Parent of the destination cell
                 cellDetails[i + 1][j].parent_i = i;
                 cellDetails[i + 1][j].parent_j = j;
                 Path = tracePath(cellDetails, rowDestination, colDestination);
                 foundDest = true;
                 return Path ;
             }
+            // Else we calculate the f, g, and h values and add it to the list
+            // if it isn't on there or the f value is better.
             else if (closedList[i + 1][j] == false && tilemap[i + 1][j] != 1) {
                 gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i + 1, j, rowDestination, colDestination);
                 fNew = gNew + hNew;
-
-                // If it isn’t on the open list, add it to
-                // the open list. Make the current square
-                // the parent of this square. Record the
-                // f, g, and h costs of the square cell
-                //                OR
-                // If it is on the open list already, check
-                // to see if this path to that square is
-                // better, using 'f' cost as the measure.
                 if (cellDetails[i + 1][j].f == FLT_MAX
                     || cellDetails[i + 1][j].f > fNew) {
                     openList.insert(std::make_pair(fNew, std::make_pair(i + 1, j)));
@@ -365,37 +342,25 @@ std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int
             }
         }
 
-        //----------- 3rd Successor (East) ------------
-
-        // Only process this cell if this is a valid one
+        // Check if East cell is valid
         if (isValid(i, j + 1) == true) {
-            // If the destination cell is the same as the
-            // current successor
+            // If we're at our destination, make our path and return it
             if (i == rowDestination && (j + 1) == colDestination) {
-                // Set the Parent of the destination cell
                 cellDetails[i][j + 1].parent_i = i;
                 cellDetails[i][j + 1].parent_j = j;
                 Path = tracePath(cellDetails, rowDestination, colDestination);
                 foundDest = true;
                 return Path ;
             }
+            // Else we calculate the f, g, and h values and add it to the list
+            // if it isn't on there or the f value is better.
             else if (closedList[i][j + 1] == false && tilemap[i][j + 1] != 1) {
                 gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i, j + 1, rowDestination, colDestination);
                 fNew = gNew + hNew;
-
-                // If it isn’t on the open list, add it to
-                // the open list. Make the current square
-                // the parent of this square. Record the
-                // f, g, and h costs of the square cell
-                //                OR
-                // If it is on the open list already, check
-                // to see if this path to that square is
-                // better, using 'f' cost as the measure.
                 if (cellDetails[i][j + 1].f == FLT_MAX
                     || cellDetails[i][j + 1].f > fNew) {
                     openList.insert(std::make_pair(fNew, std::make_pair(i, j + 1)));
-
                     // Update the details of this cell
                     cellDetails[i][j + 1].f = fNew;
                     cellDetails[i][j + 1].g = gNew;
@@ -406,37 +371,25 @@ std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int
             }
         }
 
-        //----------- 4th Successor (West) ------------
-
-        // Only process this cell if this is a valid one
+        // Check if West cell is valid
         if (isValid(i, j - 1) == true) {
-            // If the destination cell is the same as the
-            // current successor
-            if (i == rowDestination && (j + 1) == colDestination) {
-                // Set the Parent of the destination cell
+            // If we're at our destination, make our path and return it
+            if (i == rowDestination && (j - 1) == colDestination) {
                 cellDetails[i][j - 1].parent_i = i;
                 cellDetails[i][j - 1].parent_j = j;
                 Path = tracePath(cellDetails, rowDestination, colDestination);
                 foundDest = true;
                 return Path ;
             }
+            // Else we calculate the f, g, and h values and add it to the list
+            // if it isn't on there or the f value is better.
             else if (closedList[i][j - 1] == false && tilemap[i][j - 1] != 1) {
                 gNew = cellDetails[i][j].g + 1.0;
                 hNew = calculateHValue(i, j - 1, rowDestination, colDestination);
                 fNew = gNew + hNew;
-
-                // If it isn’t on the open list, add it to
-                // the open list. Make the current square
-                // the parent of this square. Record the
-                // f, g, and h costs of the square cell
-                //                OR
-                // If it is on the open list already, check
-                // to see if this path to that square is
-                // better, using 'f' cost as the measure.
                 if (cellDetails[i][j - 1].f == FLT_MAX
                     || cellDetails[i][j - 1].f > fNew) {
                     openList.insert(std::make_pair(fNew, std::make_pair(i, j - 1)));
-
                     // Update the details of this cell
                     cellDetails[i][j - 1].f = fNew;
                     cellDetails[i][j - 1].g = gNew;
@@ -447,7 +400,7 @@ std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int
             }
         }
 
-        printf("End of A Star on tile (%d, %d)\n", i, j) ;
+        //printf("End of A Star on tile (%d, %d)\n", i, j) ;
     }
 
     return Path ;
