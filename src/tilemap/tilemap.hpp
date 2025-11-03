@@ -3,6 +3,8 @@
 
 #include <stack>
 
+#define TILE_SIZE 64
+
 struct cell {
             int parent_i, parent_j ;
             double f, g, h ;
@@ -16,9 +18,9 @@ void initializeAStarTestTilemap() ;
 
 void displayTilemap() ;
 
-void setTilemap(const char *filename) ;
+void LoadTilemap(const char *filename) ;
 
-void getTilemap(const char *filename) ;
+void GetTilemap(const char *filename) ;
 
 int getTilePos(float pos) ;
 
