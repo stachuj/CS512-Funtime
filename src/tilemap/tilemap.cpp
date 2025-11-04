@@ -8,6 +8,12 @@
 int tilemap[12][16] = {1};
 int tilemapRows = 12;
 int tilemapCols = 16;
+Color tilemapColors[4] = {
+    BLACK,
+    YELLOW,
+    RED,
+    GREEN
+};
 
 //Init tilemap
 
@@ -83,9 +89,9 @@ void displayTilemap() {
 
         for (int j = 0 ; j < tilemapCols ; j++) {
 
-            if(tilemap[i][j] == 1) {
+            if(tilemap[i][j] > 0) {
 
-                DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, BLACK) ;
+                DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, tilemapColors[tilemap[i][j]-1]) ;
 
             }
 
@@ -210,7 +216,11 @@ int getCols() {
 
 int getTile(int row, int col) {
     return tilemap[row][col] ;
-} 
+}
+
+void setTile(int row, int col, int value) {
+    tilemap[row][col] = value;
+}
 
 bool isValid(int row, int col) {
     if (row < 0 || row >= getRows() || col < 0 || col >= getCols()) {

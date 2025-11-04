@@ -32,6 +32,8 @@ int getCols() ;
 
 int getTile(int row, int col) ;
 
+void setTile(int row, int col, int value);
+
 std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int colDestination) ;
 
 std::stack<Pair> tracePath(cell cellDetails[12][16], int rowDestination, int colDestination) ;

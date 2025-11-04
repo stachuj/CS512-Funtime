@@ -13,6 +13,8 @@
 #include "collectible.hpp"  
 #include <string>
 
+#include "menu.hpp"
+
 #define WINDOW_WIDTH 1024;
 #define WINDOW_HEIGHT 768;
 
@@ -43,51 +45,200 @@ int main() {
 
     Collectibles::SpawnRandom(collectibles, 10, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
 
+    GameStates currentState = GameStates::Menu;
+    Menu mainMenu(MenuType::Main);
+    Menu pauseMenu(MenuType::Pause);
+    MenuType lastMenuType = MenuType::Main;  // remembers where rules came from
+
+    int editorSelection = 1;
+    string selectionNames[4] = {
+        "Wall",
+        "Coin",
+        "Enemy",
+        "Player Start"    
+    };
+
     //Character::GetPlayer()->SetPosition({400.0, 400.0});
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose() && currentState!= GameStates::Exit) {
 
-        // This is the real time in seconds since the last update
-        float deltaTime = GetFrameTime();
+        switch (currentState) {
+            case GameStates::Menu: {
+                MenuResult result = mainMenu.Update();
 
-        gameState.UpdateTimer(deltaTime);
+                if (result == MenuResult::StartGame)
+                    currentState = GameStates::Game;
+                else if (result == MenuResult::StartEditor)
+                    currentState = GameStates::Editor;
+                else if (result == MenuResult::Rules) {
+                    currentState = GameStates::Rules;
+                    lastMenuType = MenuType::Main;
+                } else if (result == MenuResult::Exit)
+                    currentState = GameStates::Exit;
+            } break;
 
-        playerPtr->Update(deltaTime);
+            case GameStates::Game: {
 
-        for (auto enemy: enemies)
-            enemy->Update(deltaTime);
+                // This is the real time in seconds since the last update
+                float deltaTime = GetFrameTime();
 
-        Rectangle playerBox = playerPtr->GetCollisionBox();
+                gameState.UpdateTimer(deltaTime);
 
-        if (!gameState.timeUp) {
-            int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickupSfx);
-            gameState.score += newlyPicked * gameState.pointsPerCollectible;
+                playerPtr->Update(deltaTime);
+
+                for (auto enemy: enemies)
+                    enemy->Update(deltaTime);
+
+                Rectangle playerBox = playerPtr->GetCollisionBox();
+
+                //collecting coin behavior
+                if (!gameState.timeUp) {
+                    int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickupSfx);
+                    gameState.score += newlyPicked * gameState.pointsPerCollectible;
+                }
+
+                // Pause button bottom-right
+                Rectangle pauseBtn = {700, 550, 80, 30};
+
+                // If clicked -> go to pause menu
+                if (CheckCollisionPointRec(GetMousePosition(), pauseBtn) &&
+                    IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    currentState = GameStates::Pause;
+                }
+            } break;
+
+            case GameStates::Editor: {
+
+                if(IsKeyPressed(KEY_Q)) {
+                    editorSelection +=1;
+                    if(editorSelection == 5)
+                        editorSelection = 1;
+                }
+
+                Vector2 mousePos = GetMousePosition();
+
+                if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+                    setTile(getTilePos(mousePos.y), getTilePos(mousePos.x), editorSelection);
+                }
+
+                if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+                    setTile(getTilePos(mousePos.y), getTilePos(mousePos.x), 0);
+                }
+
+                if(IsKeyPressed(KEY_ESCAPE)) {
+                    currentState = GameStates::Exit;
+                }
+
+                //TODO!
+
+                if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)) {
+                    // Save the tilemap to the list of levels
+                    // And save the list of levels to file
+                }
+
+                if(IsKeyPressedRepeat(KEY_LEFT)) {
+                    //Go to the previous level (current level-1)
+                    //This will discard changes unless saved
+                }
+
+                if(IsKeyPressedRepeat(KEY_RIGHT)) {
+                    //Go to the next level (current level+1)
+                    //This will discard changes unless saved
+                }
+
+
+            } break;
+
+            case GameStates::Pause: {
+                MenuResult result = pauseMenu.Update();
+
+                if (result == MenuResult::Resume)
+                    currentState = GameStates::Game;
+                else if (result == MenuResult::StartEditor)
+                    currentState = GameStates::Editor;
+                else if (result == MenuResult::Rules) {
+                    currentState = GameStates::Rules;
+                    lastMenuType = MenuType::Pause;
+                } else if (result == MenuResult::Exit)
+                    currentState = GameStates::Exit;
+            } break;
+
+            case GameStates::Rules: {
+
+                Rectangle returnBtn = {320, 360, 160, 40};
+
+                if (CheckCollisionPointRec(GetMousePosition(), returnBtn) &&
+                    IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    // Return to previous menu
+                    currentState = (lastMenuType == MenuType::Pause)
+                        ? GameStates::Pause
+                        : GameStates::Menu;
+                }
+            } break;
+
+            default: break;
         }
 
-        /*
-        // Optional restart after time up
-        if (gs.timeUp && IsKeyPressed(KEY_R)) {
-            gs.score = 0;
-            gs.timeRemaining = gs.timeLimit;
-            gs.timeUp = false;
-            for (auto& c : collectibles) c.active = true; // reactivate all
-        }
-        */
-        
         BeginDrawing();
 
-        ClearBackground(RAYWHITE);
 
-        displayTilemap();
+        switch (currentState) {
+            case GameStates::Menu: {
+                mainMenu.Draw();
+            } break;
 
-        playerPtr->Draw();
+            case GameStates::Game: {
+                ClearBackground(RAYWHITE);
 
-        for (auto enemy: enemies)
-            enemy->Draw();
+                displayTilemap();
 
-        Collectibles::Draw(collectibles);
+                playerPtr->Draw();
 
-        DrawHUD(gameState);
+                for (auto enemy: enemies)
+                    enemy->Draw();
+
+                Collectibles::Draw(collectibles);
+
+                DrawHUD(gameState);
+
+                // Pause button bottom-right
+                Rectangle pauseBtn = {700, 550, 80, 30};
+                DrawRectangleRec(pauseBtn, DARKGRAY);
+                DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
+
+            } break;
+
+            case GameStates::Editor: {
+                ClearBackground(RAYWHITE);
+
+                displayTilemap();
+
+                DrawText("Left click - place; Right click - delete; Q - change selection; Left/right - Change level; Ctrl+S - Save", 20, 20, 18, GREEN);
+                DrawText(("Selection " + to_string(editorSelection) + ": " + selectionNames[editorSelection - 1]).c_str(), 20, 40, 20, GREEN);
+
+            } break;
+
+            case GameStates::Pause: {
+                pauseMenu.Draw();
+            } break;
+
+            case GameStates::Rules: {
+                ClearBackground(DARKBLUE);
+                DrawText("GAME RULES", 300, 120, 40, RAYWHITE);
+                DrawText("1. Rule 1", 240, 200, 25, RAYWHITE);
+                DrawText("2. Rule 2", 260, 240, 25, RAYWHITE);
+                DrawText("3. Rule 3", 280, 280, 25, RAYWHITE);
+
+                Rectangle returnBtn = {320, 360, 160, 40};
+                DrawRectangleRec(returnBtn, DARKGRAY);
+                DrawText("Return", returnBtn.x + 30, returnBtn.y + 10, 25, WHITE);
+
+            } break;
+
+            default: break;
+        }
+
+
 
         EndDrawing();
     }

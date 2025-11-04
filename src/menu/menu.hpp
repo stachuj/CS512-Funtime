@@ -4,9 +4,19 @@
 enum class MenuResult {
     None,
     StartGame,
+    StartEditor,
     Rules,
     Exit,
     Resume
+};
+
+enum class GameStates {
+    Menu,
+    Game,
+    Editor,
+    Pause,
+    Rules,
+    Exit
 };
 
 enum class MenuType {
