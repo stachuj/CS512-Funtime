@@ -1,15 +1,13 @@
 A C++ game built with raylib for CS512.  
-This project demonstrates an object-oriented game structure, including sprite-based animations and movement controls.
+In this game, you traverse through a series of levels, collecting coins to earn points while avoiding enemies found in the map.
 
 ---
 
-## Features
-- `TestObject` example that uses mouse controls 
-- A 'Character' class with WASD movement, directional movement and idle animations
-- Lightweight and easy to extend
-- A tilemap
-- Text chat
-- Sound effects
+## Features:
+- Move character around using WASD.
+- Earn points by collecting coins found around the map.
+- Moving near enemies will cause them to start moving. Avoid them!
+- Select between multiple different premade levels.
 
 ---
 
@@ -24,3 +22,16 @@ Make sure you have the following installed:
 ## Installing Raylib (Linux / Ubuntu)
 ```bash
 sudo apt install libraylib-dev
+```
+
+---
+
+## Building and Running the Program
+
+To build the program, run the following commands in your terminal while in this directory:
+```bash
+cmake -B build
+cmake --build build
+```
+
+After it finishes building, run the exe file found in the build/debug folder. 

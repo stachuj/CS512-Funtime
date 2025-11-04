@@ -4,6 +4,7 @@
 #include "chat.hpp"
 #include "character.hpp"
 #include "test_object_A_Star.hpp"
+#include "level_manager.hpp"
 
 #include "raylib-cpp.hpp"
 #include <vector>
@@ -30,6 +31,9 @@ int main() {
     initializeTilemap();
 	//initializeAStarTestTilemap() ;
 
+    // Load levels
+    LoadFromFile("../../src/levels/testLevels.txt") ;
+
     InitAudioDevice();
     Sound scream = LoadSound("../../assets/scream.wav");
     Sound pew = LoadSound("../../assets/pew.wav");
@@ -51,6 +55,7 @@ int main() {
     MenuType lastMenuType = MenuType::Main;  // remembers where rules came from
 
     int editorSelection = 1;
+    int levelIndex = 0;
     string selectionNames[4] = {
         "Wall",
         "Coin",
@@ -134,16 +139,31 @@ int main() {
                 if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)) {
                     // Save the tilemap to the list of levels
                     // And save the list of levels to file
+                    SaveLevel(levelIndex) ;
+                    SaveToFile("../../src/levels/testLevels.txt") ;
                 }
 
-                if(IsKeyPressedRepeat(KEY_LEFT)) {
+                if(IsKeyPressed(KEY_LEFT)) {
                     //Go to the previous level (current level-1)
                     //This will discard changes unless saved
+                    levelIndex -= 1 ;
+                    if(levelIndex == -1)
+                        levelIndex = 29 ;
+                    LoadLevel(levelIndex) ;
+                    
                 }
 
-                if(IsKeyPressedRepeat(KEY_RIGHT)) {
+                if(IsKeyPressed(KEY_RIGHT)) {
                     //Go to the next level (current level+1)
                     //This will discard changes unless saved
+                    levelIndex += 1 ;
+                    if(levelIndex == 30)
+                        levelIndex = 0 ;
+                    LoadLevel(levelIndex) ;
+                }
+
+                if(IsKeyPressed(KEY_M)) {
+                    currentState = GameStates::Menu;
                 }
 
 
@@ -215,6 +235,7 @@ int main() {
 
                 DrawText("Left click - place; Right click - delete; Q - change selection; Left/right - Change level; Ctrl+S - Save", 20, 20, 18, GREEN);
                 DrawText(("Selection " + to_string(editorSelection) + ": " + selectionNames[editorSelection - 1]).c_str(), 20, 40, 20, GREEN);
+                DrawText(("Current Level: " + to_string(levelIndex + 1)).c_str(), 20, 60, 20, GREEN);
 
             } break;
 
