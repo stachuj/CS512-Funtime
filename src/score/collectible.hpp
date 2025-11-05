@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COLLECTIBLE_HPP
+#define COLLECTIBLE_HPP
 #include <vector>
 #include "raylib.h"
 
@@ -13,3 +14,5 @@ namespace Collectibles {
     void Draw(const std::vector<Collectible>& items);
     int  Update(std::vector<Collectible>& items, const Rectangle* playerBoundsOpt, Sound pickupSfx);
 }
+
+#endif

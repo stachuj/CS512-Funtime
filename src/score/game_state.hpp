@@ -8,4 +8,5 @@ class GameState {
         int pointsPerCollectible = 10;
 
         void UpdateTimer(float deltaTime);
+        void ResetTimer();
 };

@@ -1,4 +1,5 @@
 #include "level_manager.hpp"
+#include "collectible.hpp"
 #include <iostream>
 #include <fstream>
 

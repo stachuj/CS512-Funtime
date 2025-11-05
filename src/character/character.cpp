@@ -55,7 +55,6 @@ void Character::Update(float deltaTime) {
     if (Vector2Length(velocity) > 0)
         velocity = Vector2Normalize(velocity);
 
-    float moveSpeed = 200.0f;
     Vector2 newPosition = Vector2Add(position, Vector2Scale(velocity, moveSpeed * deltaTime));
 
     // Try moving on X axis first
@@ -129,7 +128,7 @@ void Character::Draw() {
     // Draw collision box 
     //DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
 
-    DrawCircle(position.x, position.y, 2, GREEN);
+    //DrawCircle(position.x, position.y, 2, GREEN);
 }
 
 void Character::DrawCollisionBox() {

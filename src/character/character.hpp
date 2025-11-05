@@ -28,10 +28,11 @@ public:
     // Reorder these to match constructor initialization order:
     int currentFrame = 0;
     float frameCounter = 0.0f;
-    float frameTime = 0.15f;
+    float frameTime = 0.1f;
     Direction direction = Direction::Down;
     float scale = 2.0f;
     bool isMoving = false;
+    float moveSpeed = 250.0f;
 
     // Textures can stay in any order since they're initialized in constructor body
     Texture2D walkDown, walkUp, walkLeft, walkRight;

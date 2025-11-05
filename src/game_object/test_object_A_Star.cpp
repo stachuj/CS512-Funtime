@@ -13,9 +13,9 @@ void TestObjectAStar::Update(float deltaTime) {
 
 
     if (!awake) {
-        if (Vector2Distance(playerPtr->position, position) < 80.0) {
+        if (Vector2Distance(playerPtr->position, position) < 100.0) {
             awake = true;
-            pathingTimer = 0.75;
+            pathingTimer = 0.50;
         }
     }
     else {
@@ -89,11 +89,11 @@ void TestObjectAStar::Draw() {
     Color noticeColor = (fmodf(pathingTimer, 0.1f) < 0.05f) ? ORANGE : BLUE;
 
     //displayPath(path);
-    if (!awake)
-        DrawCircleLines(position.x, position.y, 80.8, ORANGE);
+    //if (!awake)
+        //DrawCircleLines(position.x, position.y, 100.8, ColorAlpha(ORANGE,0.25));
 
     if (pathingTimer > 0.1) {
-        DrawText("!", position.x, position.y-48, 32, noticeColor);
+        DrawText("!", position.x-1, position.y-48, 32, noticeColor);
     }
 
     DrawRectangleRec(rect, bodyColor);

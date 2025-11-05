@@ -42,21 +42,24 @@ MenuResult Menu::Update() {
 }
 
 void Menu::Draw() {
+
+    int xPos = 400;
+
     ClearBackground(BLACK);
     if (type == MenuType::Main)
-        DrawText("CS512 Funtime", 240, 150, 40, RAYWHITE);
+        DrawText("CS512 Funtime", 310, 150, 60, RAYWHITE);
     else
-        DrawText("Paused", 330, 150, 40, RAYWHITE);
+        DrawText("Paused", 380, 150, 60, RAYWHITE);
 
     if (type == MenuType::Main) {
-        DrawText("Start Game", 300, 280, 30, selected == 0 ? GREEN : GRAY);
-        DrawText("Game Rules", 300, 330, 30, selected == 1 ? GREEN : GRAY);
-        DrawText("Level Editor", 300, 380, 30, selected == 2 ? GREEN : GRAY);
-        DrawText("Quit",       300, 430, 30, selected == 3 ? GREEN : GRAY);
+        DrawText("Start Game", xPos, 280, 30, selected == 0 ? GREEN : GRAY);
+        DrawText("Game Rules", xPos, 330, 30, selected == 1 ? GREEN : GRAY);
+        DrawText("Level Editor", xPos, 380, 30, selected == 2 ? GREEN : GRAY);
+        DrawText("Quit",       xPos, 430, 30, selected == 3 ? GREEN : GRAY);
     } else {
-        DrawText("Resume Game", 300, 280, 30, selected == 0 ? GREEN : GRAY);
-        DrawText("Game Rules",  300, 330, 30, selected == 1 ? GREEN : GRAY);
-        DrawText("Level Editor", 300, 380, 30, selected == 2 ? GREEN : GRAY);
-        DrawText("Quit",       300, 430, 30, selected == 3 ? GREEN : GRAY);
+        DrawText("Resume Game", xPos, 280, 30, selected == 0 ? GREEN : GRAY);
+        DrawText("Game Rules",  xPos, 330, 30, selected == 1 ? GREEN : GRAY);
+        DrawText("Level Editor", xPos, 380, 30, selected == 2 ? GREEN : GRAY);
+        DrawText("Quit",       xPos, 430, 30, selected == 3 ? GREEN : GRAY);
     }
 }

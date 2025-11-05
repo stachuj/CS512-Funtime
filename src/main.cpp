@@ -24,15 +24,16 @@ using namespace std;
 GameState gameState;                   // holds score & timer
 Character* playerPtr;
 vector<GameObject *> enemies;
-vector<Collectible> collectibles;      // pickups to score
+std::vector<Collectible> collectibles;      // pickups to score
+
+void GoToLevel(int num);
+void InitLevel();
 
 int main() {
 
-    initializeTilemap();
-	//initializeAStarTestTilemap() ;
-
     // Load levels
     LoadFromFile("../../src/levels/testLevels.txt") ;
+    LoadLevel(0);
 
     InitAudioDevice();
     Sound scream = LoadSound("../../assets/scream.wav");
@@ -45,10 +46,6 @@ int main() {
 
     playerPtr = Character::GetPlayer();
 
-    enemies.push_back(new TestObjectAStar({80.0, 80.0}));
-
-    Collectibles::SpawnRandom(collectibles, 10, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
-
     GameStates currentState = GameStates::Menu;
     Menu mainMenu(MenuType::Main);
     Menu pauseMenu(MenuType::Pause);
@@ -56,12 +53,16 @@ int main() {
 
     int editorSelection = 1;
     int levelIndex = 0;
+
     string selectionNames[4] = {
         "Wall",
         "Coin",
         "Enemy",
         "Player Start"    
     };
+
+    Rectangle pauseBtn = {1024 - 100, 768 - 50, 80, 30};
+    Rectangle returnBtn = {1024 - 180, 768 - 60, 160, 40};
 
     //Character::GetPlayer()->SetPosition({400.0, 400.0});
 
@@ -71,8 +72,10 @@ int main() {
             case GameStates::Menu: {
                 MenuResult result = mainMenu.Update();
 
-                if (result == MenuResult::StartGame)
+                if (result == MenuResult::StartGame) {
                     currentState = GameStates::Game;
+                    GoToLevel(levelIndex);
+                }
                 else if (result == MenuResult::StartEditor)
                     currentState = GameStates::Editor;
                 else if (result == MenuResult::Rules) {
@@ -89,6 +92,9 @@ int main() {
 
                 gameState.UpdateTimer(deltaTime);
 
+                if (gameState.timeUp)
+                    playerPtr->dead = true;
+
                 playerPtr->Update(deltaTime);
 
                 for (auto enemy: enemies)
@@ -102,8 +108,21 @@ int main() {
                     gameState.score += newlyPicked * gameState.pointsPerCollectible;
                 }
 
-                // Pause button bottom-right
-                Rectangle pauseBtn = {700, 550, 80, 30};
+                bool levelFinished = true;
+                for (Collectible c: collectibles) {
+                    if (c.active)
+                        levelFinished = false;
+                }
+
+                if (levelFinished) {
+                    GoToLevel(++levelIndex);
+                }
+
+                if (playerPtr->dead) {
+                    playerPtr->dead = false;
+                    gameState.score = 0;
+                    GoToLevel(levelIndex);
+                }
 
                 // If clicked -> go to pause menu
                 if (CheckCollisionPointRec(GetMousePosition(), pauseBtn) &&
@@ -185,7 +204,7 @@ int main() {
 
             case GameStates::Rules: {
 
-                Rectangle returnBtn = {320, 360, 160, 40};
+                
 
                 if (CheckCollisionPointRec(GetMousePosition(), returnBtn) &&
                     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -212,17 +231,17 @@ int main() {
 
                 displayTilemap();
 
-                playerPtr->Draw();
-
                 for (auto enemy: enemies)
                     enemy->Draw();
 
                 Collectibles::Draw(collectibles);
 
+                playerPtr->Draw();
+
                 DrawHUD(gameState);
 
                 // Pause button bottom-right
-                Rectangle pauseBtn = {700, 550, 80, 30};
+                
                 DrawRectangleRec(pauseBtn, DARKGRAY);
                 DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
 
@@ -250,7 +269,6 @@ int main() {
                 DrawText("2. Rule 2", 260, 240, 25, RAYWHITE);
                 DrawText("3. Rule 3", 280, 280, 25, RAYWHITE);
 
-                Rectangle returnBtn = {320, 360, 160, 40};
                 DrawRectangleRec(returnBtn, DARKGRAY);
                 DrawText("Return", returnBtn.x + 30, returnBtn.y + 10, 25, WHITE);
 
@@ -274,4 +292,50 @@ int main() {
     CloseWindow();
 
     return 0;
+}
+
+void GoToLevel(int num) {
+    LoadLevel(num);
+    InitLevel();
+}
+
+void InitLevel() {
+
+    int currTile = -1;
+
+    gameState.ResetTimer();
+    enemies.clear();
+    collectibles.clear();
+
+    for(int row = 0 ; row < 12 ; row++) {
+        for(int col = 0 ; col < 16 ; col++) {
+
+            currTile = getTile(row, col);
+
+            if (currTile > 1) {
+
+                if (currTile == 2) {
+                    Collectible c;
+                    c.pos = {col * 64.0f + 32, row * 64.0f + 32};
+                    collectibles.push_back(c);
+                }
+
+                if (currTile == 3) {
+                    enemies.push_back(new TestObjectAStar({col * 64.0f + 32, row * 64.0f + 32}));
+                }
+
+                if (currTile == 4) {
+                    playerPtr->SetPosition({col * 64.0f + 32, row * 64.0f + 32});
+                }
+
+                setTile(row, col, 0);
+
+            }
+
+
+
+
+
+        }
+    }
 }

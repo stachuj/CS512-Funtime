@@ -89,13 +89,14 @@ void displayTilemap() {
 
         for (int j = 0 ; j < tilemapCols ; j++) {
 
+            DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GRAY, 0.1)) ;
+
             if(tilemap[i][j] > 0) {
 
                 DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, tilemapColors[tilemap[i][j]-1]) ;
 
             }
 
-            DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(BLUE, 0.1)) ;
 
         }
 

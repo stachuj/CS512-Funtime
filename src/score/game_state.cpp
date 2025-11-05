@@ -10,3 +10,8 @@ void GameState::UpdateTimer(float deltaTime) {
         }
     }
 }
+
+void GameState::ResetTimer() {
+    timeRemaining = timeLimit;
+    timeUp = false;
+}
