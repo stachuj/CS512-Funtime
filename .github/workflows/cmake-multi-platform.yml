@@ -1,0 +1,97 @@
+name: Discord CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-notify:
+    runs-on: windows-latest
+    env:
+      BUILD_DIR: build
+
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare merge (PR only)
+        if: ${{ github.event_name == 'pull_request' }}
+        id: mergecheck
+        shell: pwsh
+        run: |
+          $base = '${{ github.event.pull_request.base.ref }}'
+          $head = '${{ github.event.pull_request.head.ref }}'
+          Write-Host "Base: $base  Head: $head"
+          git fetch origin $base:$base
+          git fetch origin $head:$head
+          git checkout $base
+          if (git merge --no-commit --no-ff origin/$head) {
+            Write-Host "merge_ok=true"
+            echo "merge_ok=true" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Host "merge_ok=false"
+            echo "merge_ok=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Configure (CMake)
+        shell: pwsh
+        run: |
+          cmake -S . -B $env:BUILD_DIR -DCMAKE_BUILD_TYPE=Release > cmake_configure.log 2>&1
+
+      - name: Build (CMake)
+        id: build
+        shell: pwsh
+        run: |
+          cmake --build $env:BUILD_DIR --config Release > build.log 2>&1
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "build_failed=true"
+            echo "build_failed=true" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Send Discord notification and upload log if not work
+        if: always()
+        shell: pwsh
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if (-not $env:DISCORD_WEBHOOK_URL) {
+            Write-Host "No DISCORD_WEBHOOK_URL secret set; skipping notification"
+            exit 0
+          }
+
+          $mergeOk = "n/a"
+          if ("${{ github.event_name }}" -eq "pull_request") {
+            $mergeOk = "${{ steps.mergecheck.outputs.merge_ok || 'unknown' }}"
+          }
+
+          $buildOk = "true"
+          if ($env:build_failed -eq "true") { $buildOk = "false" }
+
+          $repo  = "${{ github.repository }}"
+          $actor = "${{ github.actor }}"
+          $event = "${{ github.event_name }}"
+          $prnum = "${{ github.event.pull_request.number }}"
+          $short = "Repo: $repo | Event: $event | Actor: $actor"
+          if ($prnum) { $short += " | PR: #$prnum" }
+
+          $msg = "CI Result — $short`nMerge OK: $mergeOk`nBuild OK: $buildOk"
+
+          # Post short message
+          $body = @{ content = $msg } | ConvertTo-Json -Compress
+          Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK_URL -Method Post -ContentType "application/json" -Body $body
+
+          # If build failed, upload last 200 lines of build.log
+          if ($buildOk -eq "false") {
+            Write-Host "Build failed — sending last 200 lines of build.log"
+            Get-Content build.log -Tail 200 | Set-Content shortlog.txt
+
+            $form = @{
+              "payload_json" = '{"content":"Last 200 lines of build.log:"}'
+              "file" = Get-Item shortlog.txt
+            }
+            Invoke-RestMethod -Uri $env:DISCORD_WEBHOOK_URL -Method Post -Form $form
+          }
