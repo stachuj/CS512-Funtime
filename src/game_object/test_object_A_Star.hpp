@@ -14,7 +14,7 @@ class TestObjectAStar : public virtual TestObject {
 
         Vector2 targetPosition = {0.0, 0.0};
         Vector2 velocity = {0.0, 0.0};
-        float moveSpeed = 210.0f; // pixels per second
+        float moveSpeed = 200.0f; // pixels per second
 
         float collisionWidth = 32.0;
         float collisionHeight = 32.0;
