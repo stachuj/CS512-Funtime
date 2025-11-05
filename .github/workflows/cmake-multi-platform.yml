@@ -52,6 +52,14 @@ jobs:
             echo "build_failed=true" >> $env:GITHUB_OUTPUT
           }
 
+      - name: Upload build logs for team
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-logs
+          path: build.log
+
+
       - name: Send Discord notification and upload log if not work
         if: always()
         shell: pwsh
