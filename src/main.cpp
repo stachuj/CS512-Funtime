@@ -5,6 +5,7 @@
 #include "character.hpp"
 #include "test_object_A_Star.hpp"
 #include "level_manager.hpp"
+#include "level_select.hpp"
 
 #include "raylib-cpp.hpp"
 #include <vector>
@@ -50,9 +51,11 @@ int main() {
     Menu mainMenu(MenuType::Main);
     Menu pauseMenu(MenuType::Pause);
     MenuType lastMenuType = MenuType::Main;  // remembers where rules came from
+    LevelSelect levelSelectMenu ;
 
     int editorSelection = 1;
     int levelIndex = 0;
+    bool testing = false;
 
     string selectionNames[4] = {
         "Wall",
@@ -73,8 +76,10 @@ int main() {
                 MenuResult result = mainMenu.Update();
 
                 if (result == MenuResult::StartGame) {
-                    currentState = GameStates::Game;
-                    GoToLevel(levelIndex);
+                    // Change this to be GameStates::LevelSelect
+                    // currentState = GameStates::Game;
+                    // GoToLevel(levelIndex);
+                    currentState = GameStates::LevelSelect ;
                 }
                 else if (result == MenuResult::StartEditor)
                     currentState = GameStates::Editor;
@@ -83,6 +88,18 @@ int main() {
                     lastMenuType = MenuType::Main;
                 } else if (result == MenuResult::Exit)
                     currentState = GameStates::Exit;
+            } break;
+
+            case GameStates::LevelSelect: {
+                int result = levelSelectMenu.Update() ;
+                if (result == 1) {
+                    currentState = GameStates::Game ;
+                    levelIndex = levelSelectMenu.GetLevel() ;
+                    GoToLevel(levelIndex) ;
+                }
+                else if (result == 2) {
+                    currentState = GameStates::Menu ;
+                }
             } break;
 
             case GameStates::Game: {
@@ -115,19 +132,39 @@ int main() {
                 }
 
                 if (levelFinished) {
-                    GoToLevel(++levelIndex);
+                    if(testing == true) {
+                        testing = false ;
+                        currentState = GameStates::Editor;
+                    }
+                    else {
+                        GoToLevel(++levelIndex);
+                    }
                 }
 
                 if (playerPtr->dead) {
                     playerPtr->dead = false;
                     gameState.score = 0;
-                    GoToLevel(levelIndex);
+                    if(testing == true) {
+                        testing = false ;
+                        currentState = GameStates::Editor;
+                    }
+                    else {
+                        GoToLevel(levelIndex);
+                    }
                 }
 
                 // If clicked -> go to pause menu
                 if (CheckCollisionPointRec(GetMousePosition(), pauseBtn) &&
-                    IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
+                    testing == false) {
                     currentState = GameStates::Pause;
+                }
+
+                if(IsKeyPressed(KEY_T)) {
+                    if(testing == true) {
+                        testing = false ;
+                        currentState = GameStates::Editor;
+                    }
                 }
             } break;
 
@@ -185,6 +222,12 @@ int main() {
                     currentState = GameStates::Menu;
                 }
 
+                if(IsKeyPressed(KEY_T)) {
+                    testing = true;
+                    currentState = GameStates::Game;
+                    InitLevel() ;
+                }
+
 
             } break;
 
@@ -226,6 +269,10 @@ int main() {
                 mainMenu.Draw();
             } break;
 
+            case GameStates::LevelSelect: {
+                levelSelectMenu.Draw();
+            } break;
+
             case GameStates::Game: {
                 ClearBackground(RAYWHITE);
 
@@ -241,20 +288,24 @@ int main() {
                 DrawHUD(gameState);
 
                 // Pause button bottom-right
-                
-                DrawRectangleRec(pauseBtn, DARKGRAY);
-                DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
+                // Only in actual game and not in editor testing
+
+                if(testing == false) {
+                    DrawRectangleRec(pauseBtn, DARKGRAY);
+                    DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
+                }
 
             } break;
 
             case GameStates::Editor: {
                 ClearBackground(RAYWHITE);
 
-                displayTilemap();
+                displayTilemapEditor();
 
                 DrawText("Left click - place; Right click - delete; Q - change selection; Left/right - Change level; Ctrl+S - Save", 20, 20, 18, GREEN);
-                DrawText(("Selection " + to_string(editorSelection) + ": " + selectionNames[editorSelection - 1]).c_str(), 20, 40, 20, GREEN);
-                DrawText(("Current Level: " + to_string(levelIndex + 1)).c_str(), 20, 60, 20, GREEN);
+                DrawText("T - Test level; M - Return to Main Menu", 20, 40, 18, GREEN);
+                DrawText(("Selection " + to_string(editorSelection) + ": " + selectionNames[editorSelection - 1]).c_str(), 20, 60, 20, GREEN);
+                DrawText(("Current Level: " + to_string(levelIndex + 1)).c_str(), 20, 80, 20, GREEN);
 
             } break;
 
@@ -328,7 +379,7 @@ void InitLevel() {
                     playerPtr->SetPosition({col * 64.0f + 32, row * 64.0f + 32});
                 }
 
-                setTile(row, col, 0);
+                // setTile(row, col, 0);
 
             }
 

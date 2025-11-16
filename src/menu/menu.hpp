@@ -12,6 +12,7 @@ enum class MenuResult {
 
 enum class GameStates {
     Menu,
+    LevelSelect,
     Game,
     Editor,
     Pause,

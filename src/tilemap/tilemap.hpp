@@ -18,6 +18,8 @@ void initializeAStarTestTilemap() ;
 
 void displayTilemap() ;
 
+void displayTilemapEditor() ;
+
 void LoadTilemap(const char *filename) ;
 
 void GetTilemap(const char *filename) ;
