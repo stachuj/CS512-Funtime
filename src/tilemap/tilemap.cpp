@@ -78,12 +78,38 @@ void initializeAStarTestTilemap() {
 
 /*
 Basic function to display the tilemap.
-Makes walls red, and draws an outline around each tile. 
-May change if statement to a switch statement later to 
-make it easier to display other tile types. 
+Makes walls black, and draws an outline around each tile. 
 */
 
 void displayTilemap() {
+
+    for (int i = 0 ; i < tilemapRows ; i++) {
+
+        for (int j = 0 ; j < tilemapCols ; j++) {
+
+            DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GRAY, 0.1)) ;
+
+            if(tilemap[i][j] == 1) {
+
+                DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, tilemapColors[tilemap[i][j]-1]) ;
+
+            }
+
+
+        }
+
+    }
+
+    return ;
+
+}
+
+/*
+Basic function to display the tilemap in the editor.
+Uses a different color for each tile.
+*/
+
+void displayTilemapEditor() {
 
     for (int i = 0 ; i < tilemapRows ; i++) {
 
