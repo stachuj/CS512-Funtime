@@ -21,6 +21,17 @@ class TestObjectAStar : public virtual TestObject {
 
         bool awake = false;
 
+        // --- sprite / animation ---
+        Texture2D spriteSheet = {0};     // sprite sheet texture
+        Vector2 frameSize = {0, 0};      // width/height of single frame
+        int framesPerRow = 3;
+        int rows = 4;                    // up, right, down, left
+        int currentFrame = 0;            // 0..framesPerRow-1
+        int currentRow = 2;              // default to down row (2)
+        float animTimer = 0.0f;
+        float frameTime = 0.12f;         // seconds per frame
+        bool ownsTexture = false;  
+
         TestObjectAStar() {} ;
 
         TestObjectAStar(Vector2 pos) {
@@ -36,11 +47,35 @@ class TestObjectAStar : public virtual TestObject {
             printf("Starting tile: (%d, %d)",getTilePos(position.y), getTilePos(position.x)) ;
         } ;
 
+        ~TestObjectAStar() {
+            // if this object owns the texture, free it
+            if (ownsTexture && spriteSheet.id != 0) {
+                UnloadTexture(spriteSheet);
+            }
+        }
+
+        // set sprite sheet and frame sizing. If ownTex is true then destructor will unload texture.
+        void setSpriteSheet(const Texture2D &tex, bool ownTex = false) {
+            spriteSheet = tex;
+            ownsTexture = ownTex;
+            if (tex.id != 0) {
+                frameSize.x = (float)tex.width / framesPerRow;
+                frameSize.y = (float)tex.height / rows;
+            } else {
+                frameSize = {0,0};
+            }
+        }
+
         void Update(float deltaTime) override ;
         void Draw() override;
         void setPath(std::stack<Pair> newPath) ;
         void setNextTile() ;
         bool checkOnTile() ;
+        float spriteScale = 2.0f; 
+
+        private:
+        // helper to update animation row based on velocity
+        void updateAnimationDirection();
 } ;
 
 #endif

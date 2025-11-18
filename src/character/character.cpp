@@ -1,7 +1,7 @@
 #include "character.hpp"
 #include "tilemap.hpp"
 
-const std::string assetDir = "../../assets";
+const std::string assetDir = "../assets";
 Character* Character::player = nullptr;
 
 Character::Character() {
