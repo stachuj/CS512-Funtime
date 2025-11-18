@@ -12,7 +12,7 @@ struct Collectible {
 namespace Collectibles {
     void SpawnRandom(std::vector<Collectible>& out, int count, Rectangle bounds);
     void Draw(const std::vector<Collectible>& items);
-    int  Update(std::vector<Collectible>& items, const Rectangle* playerBoundsOpt, Sound pickupSfx);
+    int  Update(std::vector<Collectible>& items, const Rectangle* playerBoundsOpt, Sound pickup);
 }
 
 #endif

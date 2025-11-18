@@ -20,6 +20,8 @@
 #define WINDOW_WIDTH 1024;
 #define WINDOW_HEIGHT 768;
 
+Texture2D enemyTex = { 0 }; 
+
 using namespace std;
 
 GameState gameState;                   // holds score & timer
@@ -37,13 +39,15 @@ int main() {
     LoadLevel(0);
 
     InitAudioDevice();
-    Sound scream = LoadSound("../../assets/scream.wav");
-    Sound pew = LoadSound("../../assets/pew.wav");
+    Sound scream = LoadSound("../assets/scream.wav");
+    Sound pickup = LoadSound("../assets/pickup.mp3");
     Sound mew = LoadSound("../../assets/mew.wav");
-    Sound pickupSfx = pew;
+
 
     InitWindow(1024, 768, "CS512 Funtime");
     SetTargetFPS(60);
+
+    enemyTex = LoadTexture("../assets/zombie.png"); //SPRITE
 
     playerPtr = Character::GetPlayer();
 
@@ -119,7 +123,7 @@ int main() {
 
                 //collecting coin behavior
                 if (!gameState.timeUp) {
-                    int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickupSfx);
+                    int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickup);
                     gameState.score += newlyPicked * gameState.pointsPerCollectible;
                 }
 
@@ -140,6 +144,7 @@ int main() {
                 }
 
                 if (playerPtr->dead) {
+                    PlaySound(scream);
                     playerPtr->dead = false;
                     gameState.score = 0;
                     if(testing == true) {
@@ -339,7 +344,7 @@ int main() {
 
     // Cleanup
     UnloadSound(scream);
-    UnloadSound(pew);
+    UnloadSound(pickup);
     UnloadSound(mew);
 
     CloseAudioDevice();
@@ -376,7 +381,10 @@ void InitLevel() {
                 }
 
                 if (currTile == 3) {
-                    enemies.push_back(new TestObjectAStar({col * 64.0f + 32, row * 64.0f + 32}));
+                   TestObjectAStar* e = new TestObjectAStar({col * 64.0f + 32, row * 64.0f + 32});
+                    // assign shared spritesheet; false = don't UnloadTexture in destructor
+                    e->setSpriteSheet(enemyTex, false);
+                    enemies.push_back(e);;
                 }
 
                 if (currTile == 4) {
