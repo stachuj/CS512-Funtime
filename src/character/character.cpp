@@ -1,11 +1,10 @@
 #include "character.hpp"
-#include "tilemap/tilemap.hpp"
+#include "tilemap.hpp"
 
-Character::Character(Vector2 startPos, const std::string& assetDir)
-    : position(startPos), velocity({0, 0}), currentFrame(0),
-      frameCounter(0.0f), frameTime(0.15f), direction(Direction::Down),
-      scale(2.0f), isMoving(false)
-{
+const std::string assetDir = "../../assets";
+Character* Character::player = nullptr;
+
+Character::Character() {
     // Walking pictures
     walkDown = LoadTexture((assetDir + "/run_down.png").c_str());
     walkUp   = LoadTexture((assetDir + "/run_up.png").c_str());
@@ -38,6 +37,10 @@ Character::~Character() {
 }
 
 void Character::Update(float deltaTime) {
+
+    if (dead)
+        return;
+
     Vector2 oldPosition = position; // Store the old position
     
     velocity = {0, 0};
@@ -52,7 +55,6 @@ void Character::Update(float deltaTime) {
     if (Vector2Length(velocity) > 0)
         velocity = Vector2Normalize(velocity);
 
-    float moveSpeed = 200.0f;
     Vector2 newPosition = Vector2Add(position, Vector2Scale(velocity, moveSpeed * deltaTime));
 
     // Try moving on X axis first
@@ -84,28 +86,27 @@ void Character::Update(float deltaTime) {
 }
 
 bool Character::CheckInWall() {
-    // Get the actual dimensions of your character's collision area
-    float collisionWidth = frameWidth * scale * 0.6f;   // 60% of sprite width
-    float collisionHeight = frameHeight * scale * 0.4f; // 40% of sprite height (lower part)
-    
     float halfWidth = collisionWidth / 2.0f; // bc of scaling the sprite
     float halfHeight = collisionHeight / 2.0f;
     
-    float cornerSpread = 0.3f; //to move corners left and right
-    
     // Check multiple points around the character's collision rectangle
-    return isWall(position.x - halfWidth * cornerSpread, position.y + halfHeight) ||  // bottom left
-           isWall(position.x + halfWidth * cornerSpread, position.y + halfHeight) ||  // bottom right
-           isWall(position.x - halfWidth * cornerSpread, position.y - halfHeight) ||  // top left  
-           isWall(position.x + halfWidth * cornerSpread, position.y - halfHeight) ||  // top right
-           isWall(position.x, position.y + halfHeight) ||                            // bottom center
-           isWall(position.x, position.y - halfHeight) ||                            // top center
-           isWall(position.x - halfWidth * cornerSpread, position.y) ||              // middle left
-           isWall(position.x + halfWidth * cornerSpread, position.y);                // middle right
+    return isWall(position.x - halfWidth, position.y + halfHeight) ||  // bottom left
+           isWall(position.x + halfWidth, position.y + halfHeight) ||  // bottom right
+           isWall(position.x - halfWidth, position.y - halfHeight) ||  // top left  
+           isWall(position.x + halfWidth, position.y - halfHeight); // top right
+           //isWall(position.x, position.y + halfHeight) ||                            // bottom center
+           //isWall(position.x, position.y - halfHeight) ||                            // top center
+           //isWall(position.x - halfWidth * cornerSpread, position.y) ||              // middle left
+           //isWall(position.x + halfWidth * cornerSpread, position.y);                // middle right
 }
 
 
 void Character::Draw() {
+
+    if (dead)
+        return;
+
+
     Rectangle src = {
         static_cast<float>(frameWidth * currentFrame),
         0,
@@ -114,8 +115,8 @@ void Character::Draw() {
     };
 
     Rectangle dest = {
-        position.x,
-        position.y,
+        position.x + spriteOffset.x,
+        position.y + spriteOffset.y,
         frameWidth * scale,
         frameHeight * scale
     };
@@ -125,31 +126,17 @@ void Character::Draw() {
     DrawTexturePro(*currentSprite, src, dest, origin, 0.0f, WHITE);
 
     // Draw collision box 
-     DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
+    //DrawCollisionBox(); //UNCOMMENT TO SEE COLLISION POINTS
+
+    //DrawCircle(position.x, position.y, 2, GREEN);
 }
 
 void Character::DrawCollisionBox() {
-    float collisionWidth = frameWidth * scale * 0.6f;
-    float collisionHeight = frameHeight * scale * 0.4f;
     
     float halfWidth = collisionWidth / 2.0f;
     float halfHeight = collisionHeight / 2.0f;
     
-    float cornerSpread = 0.3f; 
-    
-    float pointSize = 4.0f;
-    
-    // Corner points 
-    DrawCircle(position.x - halfWidth * cornerSpread, position.y + halfHeight, pointSize, RED);  // bottom left
-    DrawCircle(position.x + halfWidth * cornerSpread, position.y + halfHeight, pointSize, RED);  // bottom right
-    DrawCircle(position.x - halfWidth * cornerSpread, position.y - halfHeight, pointSize, RED);  // top left  
-    DrawCircle(position.x + halfWidth * cornerSpread, position.y - halfHeight, pointSize, RED);  // top right
-    DrawCircle(position.x - halfWidth * cornerSpread, position.y, pointSize, RED);            // middle left
-    DrawCircle(position.x + halfWidth * cornerSpread, position.y, pointSize, RED);                // middle right
-    
-    //Middle points 
-    DrawCircle(position.x, position.y + halfHeight, pointSize, RED);  // bottom center
-    DrawCircle(position.x, position.y - halfHeight, pointSize, RED);  // top center
+    DrawRectangleLines(position.x - halfWidth, position.y - halfHeight, collisionWidth, collisionHeight, RED);
     
 }
 
@@ -160,3 +147,12 @@ Vector2 Character::GetPosition() const {
 Vector2 Character::GetSize() const {
     return { frameWidth * scale, frameHeight * scale };
 }
+
+Rectangle Character::GetCollisionBox() {
+
+    float halfWidth = collisionWidth / 2.0f;
+    float halfHeight = collisionHeight / 2.0f;
+
+    return Rectangle{position.x - halfWidth, position.y - halfHeight, collisionWidth, collisionHeight};
+}
+

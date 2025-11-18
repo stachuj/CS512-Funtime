@@ -1,6 +1,6 @@
 #pragma once
 #include "raylib.h"
-#include "GameState.h"
+#include "game_state.hpp"
 
 inline void DrawHUD(const GameState& gs) {
     DrawText(TextFormat("SCORE: %d", gs.score), 10, 10, 28, WHITE);

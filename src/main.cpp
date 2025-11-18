@@ -4,243 +4,332 @@
 #include "chat.hpp"
 #include "character.hpp"
 #include "test_object_A_Star.hpp"
-#include "menu.hpp"
+#include "level_manager.hpp"
+#include "level_select.hpp"
+
+#include "raylib-cpp.hpp"
 #include <vector>
-#include <raylib.h>
-#include "GameState.h"   
-#include "HUD.h"
-#include "Collectible.h"
+
+#include "game_state.hpp"     
+#include "hud.hpp"           
+#include "collectible.hpp"  
 #include <string>
+
+#include "menu.hpp"
+
+#define WINDOW_WIDTH 1024;
+#define WINDOW_HEIGHT 768;
 
 using namespace std;
 
-Chat chat;
+GameState gameState;                   // holds score & timer
+Character* playerPtr;
+vector<GameObject *> enemies;
+std::vector<Collectible> collectibles;      // pickups to score
 
-std::string GetAssetsPath() {
-    static std::string assetsPath;
-    if (assetsPath.empty()) {
-        assetsPath = GetApplicationDirectory();
-        assetsPath += "assets/";
-    }
-    return assetsPath;
-}
+void GoToLevel(int num);
+void InitLevel();
 
 int main() {
-    // Window initialization
-    InitWindow(800, 600, "CS512 Funtime");
-    SetTargetFPS(60);
+
+    // Load levels
+    LoadFromFile("../../src/levels/testLevels.txt") ;
+    LoadLevel(0);
+
     InitAudioDevice();
-
-    // variables for every sstate
-    enum class AppState {
-        MAIN_MENU,
-        PLAYING,
-        PAUSED,
-        RULES,
-        GAME_OVER
-    };
-    
-    AppState currentAppState = AppState::MAIN_MENU;
-    Menu mainMenu(MenuType::Main);
-    Menu pauseMenu(MenuType::Pause);
-    
-    // Game objects
-    std::vector<GameObject *> objects;
-    initializeTilemap();
-    initializeAStarTestTilemap();
-
-    // AStar
-    std::stack<Pair> Path;
-    float testEnemyUpdate = 3.0;
-    int targetRowTile = 0;
-    int targetColTile = 0;
-
-    // Load sounds
-    Sound scream = LoadSound("assets/scream.wav");
-    Sound pew    = LoadSound("assets/pew.wav");
-    Sound mew    = LoadSound("assets/mew.wav");
+    Sound scream = LoadSound("../../assets/scream.wav");
+    Sound pew = LoadSound("../../assets/pew.wav");
+    Sound mew = LoadSound("../../assets/mew.wav");
     Sound pickupSfx = pew;
 
-    // Create game objects
-    Character* player = new Character({500, 300}, GetApplicationDirectory() + std::string("assets"));
-    objects.push_back(player);
-    objects.push_back(new TestObject({100.0, 400.0}));
-    TestObjectAStar* testEnemy = new TestObjectAStar({80.0, 80.0});
-    objects.push_back(testEnemy);
+    InitWindow(1024, 768, "CS512 Funtime");
+    SetTargetFPS(60);
 
-    // Game state
-    GameState gameStats;  
-    std::vector<Collectible> collectibles;
-    Collectibles::SpawnRandom(collectibles, 10, {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
+    playerPtr = Character::GetPlayer();
 
-    bool chatVisible = false;
-    PlaySound(scream);
+    GameStates currentState = GameStates::Menu;
+    Menu mainMenu(MenuType::Main);
+    Menu pauseMenu(MenuType::Pause);
+    MenuType lastMenuType = MenuType::Main;  // remembers where rules came from
+    LevelSelect levelSelectMenu ;
 
-    // Main game loop
-    while (!WindowShouldClose()) {
-        float deltaTime = GetFrameTime();
+    int editorSelection = 1;
+    int levelIndex = 0;
+    bool testing = false;
 
-        // State machine
-        switch (currentAppState) {
-            case AppState::MAIN_MENU: {
+    string selectionNames[4] = {
+        "Wall",
+        "Coin",
+        "Enemy",
+        "Player Start"    
+    };
+
+    Rectangle pauseBtn = {1024 - 100, 768 - 50, 80, 30};
+    Rectangle returnBtn = {1024 - 180, 768 - 60, 160, 40};
+
+    //Character::GetPlayer()->SetPosition({400.0, 400.0});
+
+    while (!WindowShouldClose() && currentState!= GameStates::Exit) {
+
+        switch (currentState) {
+            case GameStates::Menu: {
                 MenuResult result = mainMenu.Update();
+
                 if (result == MenuResult::StartGame) {
-                    currentAppState = AppState::PLAYING;
-                    gameStats.score = 0;
-                    gameStats.timeRemaining = gameStats.timeLimit;
-                    gameStats.timeUp = false;
-                    for (auto& c : collectibles) c.active = true;
-                } else if (result == MenuResult::Rules) {
-                    currentAppState = AppState::RULES;
-                } else if (result == MenuResult::Exit) {
-                    break; // Exit game
+                    // Change this to be GameStates::LevelSelect
+                    // currentState = GameStates::Game;
+                    // GoToLevel(levelIndex);
+                    currentState = GameStates::LevelSelect ;
                 }
-                break;
-            }
+                else if (result == MenuResult::StartEditor)
+                    currentState = GameStates::Editor;
+                else if (result == MenuResult::Rules) {
+                    currentState = GameStates::Rules;
+                    lastMenuType = MenuType::Main;
+                } else if (result == MenuResult::Exit)
+                    currentState = GameStates::Exit;
+            } break;
 
-            case AppState::PLAYING: {
-                // PAUSE BUTTON
-                if (IsKeyPressed(KEY_P)) {
-                    currentAppState = AppState::PAUSED;
-                    break;
+            case GameStates::LevelSelect: {
+                int result = levelSelectMenu.Update() ;
+                if (result == 1) {
+                    currentState = GameStates::Game ;
+                    levelIndex = levelSelectMenu.GetLevel() ;
+                    GoToLevel(levelIndex) ;
+                }
+                else if (result == 2) {
+                    currentState = GameStates::Menu ;
+                }
+            } break;
+
+            case GameStates::Game: {
+
+                // This is the real time in seconds since the last update
+                float deltaTime = GetFrameTime();
+
+                gameState.UpdateTimer(deltaTime);
+
+                if (gameState.timeUp)
+                    playerPtr->dead = true;
+
+                playerPtr->Update(deltaTime);
+
+                for (auto enemy: enemies)
+                    enemy->Update(deltaTime);
+
+                Rectangle playerBox = playerPtr->GetCollisionBox();
+
+                //collecting coin behavior
+                if (!gameState.timeUp) {
+                    int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickupSfx);
+                    gameState.score += newlyPicked * gameState.pointsPerCollectible;
                 }
 
-                // Chat, probably should delete
-                if (IsKeyPressed(KEY_C)) chatVisible = !chatVisible;
+                bool levelFinished = true;
+                for (Collectible c: collectibles) {
+                    if (c.active)
+                        levelFinished = false;
+                }
 
-                // Timer
-                if (!gameStats.timeUp) {
-                    gameStats.timeRemaining -= deltaTime;
-                    if (gameStats.timeRemaining <= 0.0f) {
-                        gameStats.timeRemaining = 0.0f;
-                        gameStats.timeUp = true;
-                        currentAppState = AppState::GAME_OVER;
+                if (levelFinished) {
+                    if(testing == true) {
+                        testing = false ;
+                        currentState = GameStates::Editor;
+                    }
+                    else {
+                        GoToLevel(++levelIndex);
                     }
                 }
 
-                // Astar code for enemy chasing player's position
-                testEnemyUpdate -= deltaTime;
-                Vector2 wasdCharacterPos = player->GetPosition();
-                if (!isWall(wasdCharacterPos.x, wasdCharacterPos.y)) {
-                    targetColTile = getTilePos(wasdCharacterPos.x);
-                    targetRowTile = getTilePos(wasdCharacterPos.y);
-                }
-                if (testEnemyUpdate <= 0.0) {
-                    testEnemyUpdate = 3.0;
-                    int testEnemyColTile = getTilePos(testEnemy->position.x);
-                    int testEnemyRowTile = getTilePos(testEnemy->position.y);
-                    Path = AStarSearch(testEnemyRowTile, testEnemyColTile, targetRowTile, targetColTile);
-                    testEnemy->setPath(Path);
+                if (playerPtr->dead) {
+                    playerPtr->dead = false;
+                    gameState.score = 0;
+                    if(testing == true) {
+                        testing = false ;
+                        currentState = GameStates::Editor;
+                    }
+                    else {
+                        GoToLevel(levelIndex);
+                    }
                 }
 
-                // Update game objects
-                for (auto object : objects)
-                    object->Update(deltaTime);
-                
-                // Chat update
-                chat.Update();
-
-                // Player bounds for pickup collision
-                Rectangle playerBounds;
-                Vector2 p = player->GetPosition();
-                Vector2 sz = player->GetSize();
-                playerBounds = { p.x - sz.x * 0.5f, p.y - sz.y * 0.5f, sz.x, sz.y };
-
-                // Update collectibles
-                if (!gameStats.timeUp) {
-                    int newlyPicked = Collectibles::Update(collectibles, &playerBounds, pickupSfx);
-                    gameStats.score += newlyPicked * gameStats.pointsPerCollectible;
+                // If clicked -> go to pause menu
+                if (CheckCollisionPointRec(GetMousePosition(), pauseBtn) &&
+                    IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
+                    testing == false) {
+                    currentState = GameStates::Pause;
                 }
 
-                break;
-            }
+                if(IsKeyPressed(KEY_T)) {
+                    if(testing == true) {
+                        testing = false ;
+                        currentState = GameStates::Editor;
+                    }
+                }
+            } break;
 
-            case AppState::PAUSED: {
+            case GameStates::Editor: {
+
+                if(IsKeyPressed(KEY_Q)) {
+                    editorSelection +=1;
+                    if(editorSelection == 5)
+                        editorSelection = 1;
+                }
+
+                Vector2 mousePos = GetMousePosition();
+
+                if(IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+                    setTile(getTilePos(mousePos.y), getTilePos(mousePos.x), editorSelection);
+                }
+
+                if(IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+                    setTile(getTilePos(mousePos.y), getTilePos(mousePos.x), 0);
+                }
+
+                if(IsKeyPressed(KEY_ESCAPE)) {
+                    currentState = GameStates::Exit;
+                }
+
+                //TODO!
+
+                if(IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)) {
+                    // Save the tilemap to the list of levels
+                    // And save the list of levels to file
+                    SaveLevel(levelIndex) ;
+                    SaveToFile("../../src/levels/testLevels.txt") ;
+                }
+
+                if(IsKeyPressed(KEY_LEFT)) {
+                    //Go to the previous level (current level-1)
+                    //This will discard changes unless saved
+                    levelIndex -= 1 ;
+                    if(levelIndex == -1)
+                        levelIndex = 29 ;
+                    LoadLevel(levelIndex) ;
+                    
+                }
+
+                if(IsKeyPressed(KEY_RIGHT)) {
+                    //Go to the next level (current level+1)
+                    //This will discard changes unless saved
+                    levelIndex += 1 ;
+                    if(levelIndex == 30)
+                        levelIndex = 0 ;
+                    LoadLevel(levelIndex) ;
+                }
+
+                if(IsKeyPressed(KEY_M)) {
+                    currentState = GameStates::Menu;
+                }
+
+                if(IsKeyPressed(KEY_T)) {
+                    testing = true;
+                    currentState = GameStates::Game;
+                    InitLevel() ;
+                }
+
+
+            } break;
+
+            case GameStates::Pause: {
                 MenuResult result = pauseMenu.Update();
-                if (result == MenuResult::Resume) {
-                    currentAppState = AppState::PLAYING;
-                } else if (result == MenuResult::Rules) {
-                    currentAppState = AppState::RULES;
-                } else if (result == MenuResult::Exit) {
-                    currentAppState = AppState::MAIN_MENU;
-                }
-                break;
-            }
 
-            case AppState::RULES: {
-                if (IsKeyPressed(KEY_P) || IsKeyPressed(KEY_ENTER)) {
-                    currentAppState = AppState::MAIN_MENU;
-                }
-                break;
-            }
+                if (result == MenuResult::Resume)
+                    currentState = GameStates::Game;
+                else if (result == MenuResult::StartEditor)
+                    currentState = GameStates::Editor;
+                else if (result == MenuResult::Rules) {
+                    currentState = GameStates::Rules;
+                    lastMenuType = MenuType::Pause;
+                } else if (result == MenuResult::Exit)
+                    currentState = GameStates::Exit;
+            } break;
 
-            case AppState::GAME_OVER: {
-                if (IsKeyPressed(KEY_ENTER)) {
-                    currentAppState = AppState::MAIN_MENU;
-                } else if (IsKeyPressed(KEY_R)) {
-                    currentAppState = AppState::PLAYING;
-                    gameStats.score = 0;
-                    gameStats.timeRemaining = gameStats.timeLimit;
-                    gameStats.timeUp = false;
-                    for (auto& c : collectibles) c.active = true;
+            case GameStates::Rules: {
+
+                
+
+                if (CheckCollisionPointRec(GetMousePosition(), returnBtn) &&
+                    IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    // Return to previous menu
+                    currentState = (lastMenuType == MenuType::Pause)
+                        ? GameStates::Pause
+                        : GameStates::Menu;
                 }
-                break;
-            }
+            } break;
+
+            default: break;
         }
 
-        // Rendering
         BeginDrawing();
-        {
-            ClearBackground(RAYWHITE);
 
-            switch (currentAppState) {
-                case AppState::MAIN_MENU:
-                    mainMenu.Draw();
-                    break;
 
-                case AppState::PLAYING:
+        switch (currentState) {
+            case GameStates::Menu: {
+                mainMenu.Draw();
+            } break;
 
-                    displayPath(Path);
-                    displayTilemap();
-                    for (auto object : objects)
-                        object->Draw();
-                    Collectibles::Draw(collectibles);
-                    DrawHUD(gameStats);  
-                    if (chatVisible) chat.Draw();
-                    DrawText("This is Jeremy the purple square..", 10, 10, 20, BLACK);
-                    DrawText("Press C to toggle chat", 10, 36, 16, DARKGRAY);
-                    break;
+            case GameStates::LevelSelect: {
+                levelSelectMenu.Draw();
+            } break;
 
-                case AppState::PAUSED:
-                    displayTilemap();
-                    for (auto object : objects)
-                        object->Draw();
-                    Collectibles::Draw(collectibles);
-                    DrawHUD(gameStats); 
-                    // Transparent wile paused
-                    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), {0, 0, 0, 128});
-                    pauseMenu.Draw();
-                    break;
+            case GameStates::Game: {
+                ClearBackground(RAYWHITE);
 
-                case AppState::RULES:
-                    ClearBackground(BLACK);
-                    DrawText("GAME RULES", 250, 100, 40, RAYWHITE);
-                    DrawText("1. Collect all items before time runs out", 100, 200, 24, RAYWHITE);
-                    DrawText("2. Avoid the enemy chasing you", 100, 240, 24, RAYWHITE);
-                    DrawText("3. Use WASD to move your character", 100, 280, 24, RAYWHITE);
-                    DrawText("4. Press P to pause the game", 100, 320, 24, RAYWHITE);
-                    DrawText("Press P or ENTER to go back", 200, 450, 24, GRAY);
-                    break;
+                displayTilemap();
 
-                case AppState::GAME_OVER:
-                    ClearBackground(BLACK);
-                    DrawText("GAME OVER", 280, 150, 40, RAYWHITE);
-                    DrawText(TextFormat("Final Score: %d", gameStats.score), 300, 250, 30, RAYWHITE);
-                    DrawText("Press ENTER for Main Menu", 250, 350, 24, GRAY);
-                    DrawText("Press R to Restart", 280, 400, 24, GRAY);
-                    break;
-            }
+                for (auto enemy: enemies)
+                    enemy->Draw();
+
+                Collectibles::Draw(collectibles);
+
+                playerPtr->Draw();
+
+                DrawHUD(gameState);
+
+                // Pause button bottom-right
+                // Only in actual game and not in editor testing
+
+                if(testing == false) {
+                    DrawRectangleRec(pauseBtn, DARKGRAY);
+                    DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
+                }
+
+            } break;
+
+            case GameStates::Editor: {
+                ClearBackground(RAYWHITE);
+
+                displayTilemapEditor();
+
+                DrawText("Left click - place; Right click - delete; Q - change selection; Left/right - Change level; Ctrl+S - Save", 20, 20, 18, GREEN);
+                DrawText("T - Test level; M - Return to Main Menu", 20, 40, 18, GREEN);
+                DrawText(("Selection " + to_string(editorSelection) + ": " + selectionNames[editorSelection - 1]).c_str(), 20, 60, 20, GREEN);
+                DrawText(("Current Level: " + to_string(levelIndex + 1)).c_str(), 20, 80, 20, GREEN);
+
+            } break;
+
+            case GameStates::Pause: {
+                pauseMenu.Draw();
+            } break;
+
+            case GameStates::Rules: {
+                ClearBackground(DARKBLUE);
+                DrawText("GAME RULES", 300, 120, 40, RAYWHITE);
+                DrawText("1. Rule 1", 240, 200, 25, RAYWHITE);
+                DrawText("2. Rule 2", 260, 240, 25, RAYWHITE);
+                DrawText("3. Rule 3", 280, 280, 25, RAYWHITE);
+
+                DrawRectangleRec(returnBtn, DARKGRAY);
+                DrawText("Return", returnBtn.x + 30, returnBtn.y + 10, 25, WHITE);
+
+            } break;
+
+            default: break;
         }
+
+
+
         EndDrawing();
     }
 
@@ -248,8 +337,56 @@ int main() {
     UnloadSound(scream);
     UnloadSound(pew);
     UnloadSound(mew);
+
     CloseAudioDevice();
+
     CloseWindow();
 
     return 0;
+}
+
+void GoToLevel(int num) {
+    LoadLevel(num);
+    InitLevel();
+}
+
+void InitLevel() {
+
+    int currTile = -1;
+
+    gameState.ResetTimer();
+    enemies.clear();
+    collectibles.clear();
+
+    for(int row = 0 ; row < 12 ; row++) {
+        for(int col = 0 ; col < 16 ; col++) {
+
+            currTile = getTile(row, col);
+
+            if (currTile > 1) {
+
+                if (currTile == 2) {
+                    Collectible c;
+                    c.pos = {col * 64.0f + 32, row * 64.0f + 32};
+                    collectibles.push_back(c);
+                }
+
+                if (currTile == 3) {
+                    enemies.push_back(new TestObjectAStar({col * 64.0f + 32, row * 64.0f + 32}));
+                }
+
+                if (currTile == 4) {
+                    playerPtr->SetPosition({col * 64.0f + 32, row * 64.0f + 32});
+                }
+
+                // setTile(row, col, 0);
+
+            }
+
+
+
+
+
+        }
+    }
 }

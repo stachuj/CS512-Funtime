@@ -1,13 +1,7 @@
 #include "raylib.h"
 #include "menu.hpp"
 
-enum class GameState {
-    Menu,
-    Game,
-    Pause,
-    Rules,
-    Exit
-};
+
 
 /*
 int main() {

@@ -1,4 +1,4 @@
-#include "Collectible.h"
+#include "collectible.hpp"
 #include <algorithm>
 #include <cmath>
 
@@ -23,8 +23,8 @@ void Collectibles::SpawnRandom(std::vector<Collectible>& out, int count, Rectang
 void Collectibles::Draw(const std::vector<Collectible>& items) {
     for (auto const& c : items) {
         if (!c.active) continue;
+        DrawCircleV(c.pos, c.radius+3, BROWN);
         DrawCircleV(c.pos, c.radius, GOLD);
-        DrawCircleLines((int)c.pos.x, (int)c.pos.y, c.radius, BROWN);
     }
 }
 

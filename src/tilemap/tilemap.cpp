@@ -9,6 +9,12 @@
 int tilemap[12][16] = {1};
 int tilemapRows = 12;
 int tilemapCols = 16;
+Color tilemapColors[4] = {
+    BLACK,
+    YELLOW,
+    RED,
+    GREEN
+};
 
 //Init tilemap
 
@@ -73,9 +79,7 @@ void initializeAStarTestTilemap() {
 
 /*
 Basic function to display the tilemap.
-Makes walls red, and draws an outline around each tile. 
-May change if statement to a switch statement later to 
-make it easier to display other tile types. 
+Makes walls black, and draws an outline around each tile. 
 */
 
 void displayTilemap() {
@@ -84,13 +88,42 @@ void displayTilemap() {
 
         for (int j = 0 ; j < tilemapCols ; j++) {
 
+            DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GRAY, 0.1)) ;
+
             if(tilemap[i][j] == 1) {
 
-                DrawRectangle(j * 50, i * 50, 50, 50, BLACK) ;
+                DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, tilemapColors[tilemap[i][j]-1]) ;
 
             }
 
-            DrawRectangleLines(j * 50, i * 50, 50, 50, ColorAlpha(BLUE, 0.1)) ;
+
+        }
+
+    }
+
+    return ;
+
+}
+
+/*
+Basic function to display the tilemap in the editor.
+Uses a different color for each tile.
+*/
+
+void displayTilemapEditor() {
+
+    for (int i = 0 ; i < tilemapRows ; i++) {
+
+        for (int j = 0 ; j < tilemapCols ; j++) {
+
+            DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GRAY, 0.1)) ;
+
+            if(tilemap[i][j] > 0) {
+
+                DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, tilemapColors[tilemap[i][j]-1]) ;
+
+            }
+
 
         }
 
@@ -105,7 +138,7 @@ Saves the tilemap as a 2d array of ints to a text file.
 Currently saves to the debug folder, unsure if this will cause issues later.
 */
 
-void setTilemap(const char *filename) {
+void LoadTilemap(const char *filename) {
 
     std::ofstream file(filename, std::ofstream::trunc) ;
 
@@ -144,7 +177,7 @@ void setTilemap(const char *filename) {
 Gets tilemap from file and saves it to a 2d array.
 */
 
-void getTilemap(const char *filename) { 
+void SaveTilemap(const char *filename) { 
 
     std::ifstream file(filename) ;
 
@@ -178,7 +211,7 @@ void getTilemap(const char *filename) {
 // Converts position on the window to the tile in the tilemap. 
 
 int getTilePos(float pos) {
-    int tilePos = pos / 50 ;
+    int tilePos = pos / TILE_SIZE ;
 
     return tilePos ;
 }
@@ -211,7 +244,11 @@ int getCols() {
 
 int getTile(int row, int col) {
     return tilemap[row][col] ;
-} 
+}
+
+void setTile(int row, int col, int value) {
+    tilemap[row][col] = value;
+}
 
 bool isValid(int row, int col) {
     if (row < 0 || row >= getRows() || col < 0 || col >= getCols()) {
@@ -228,7 +265,7 @@ double calculateHValue(int xCurrent, int yCurrent, int xDestination, int yDestin
 
 }
 
-std::stack<Pair> AStarSearch(int rowStart, int colStart, int rowDestination, int colDestination) {
+std::stack<Pair> AStarSearch(int rowStart, int colStart, int colDestination, int rowDestination) {
 
     std::stack<Pair> Path ;
 
@@ -432,7 +469,7 @@ void displayPath(std::stack<Pair> Path) {
     while(!Path.empty()) {
         Pair p = Path.top() ;
 		Path.pop() ;
-        DrawRectangle(p.second * 50, p.first * 50, 50, 50, GREEN) ;
+        DrawRectangle(p.second * TILE_SIZE, p.first * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GREEN, 0.5)) ;
     }
 
     return ;
