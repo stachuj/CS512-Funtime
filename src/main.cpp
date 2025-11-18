@@ -25,7 +25,7 @@ using namespace std;
 GameState gameState;                   // holds score & timer
 Character* playerPtr;
 vector<GameObject *> enemies;
-std::vector<Collectible> collectibles;      // pickups to score
+vector<Collectible> collectibles;      // pickups to score
 
 void GoToLevel(int num);
 void InitLevel();
@@ -66,8 +66,6 @@ int main() {
 
     Rectangle pauseBtn = {1024 - 100, 768 - 50, 80, 30};
     Rectangle returnBtn = {1024 - 180, 768 - 60, 160, 40};
-
-    //Character::GetPlayer()->SetPosition({400.0, 400.0});
 
     while (!WindowShouldClose() && currentState!= GameStates::Exit) {
 
@@ -247,8 +245,6 @@ int main() {
 
             case GameStates::Rules: {
 
-                
-
                 if (CheckCollisionPointRec(GetMousePosition(), returnBtn) &&
                     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     // Return to previous menu
@@ -275,6 +271,14 @@ int main() {
 
             case GameStates::Game: {
                 ClearBackground(RAYWHITE);
+
+                Texture2D floorTexture = LoadTexture("../../assets/floor.png");
+
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 16; j++) {
+                        DrawTexture(floorTexture, j * 64, i * 64, WHITE);
+                    }
+                }
 
                 displayTilemap();
 
