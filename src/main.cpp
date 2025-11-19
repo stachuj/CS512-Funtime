@@ -20,6 +20,10 @@
 #define WINDOW_WIDTH 1024;
 #define WINDOW_HEIGHT 768;
 
+int lastLevel = 2;
+
+Texture2D enemyTex = { 0 }; 
+
 using namespace std;
 using std::string;
 using std::to_string;
@@ -27,7 +31,7 @@ using std::to_string;
 GameState gameState;                   // holds score & timer
 Character* playerPtr;
 vector<GameObject *> enemies;
-std::vector<Collectible> collectibles;      // pickups to score
+vector<Collectible> collectibles;      // pickups to score
 
 void GoToLevel(int num);
 void InitLevel();
@@ -40,23 +44,27 @@ int main() {
 
     InitAudioDevice();
     Sound scream = LoadSound("../../assets/scream.wav");
-    Sound pew = LoadSound("../../assets/pew.wav");
+    Sound pickup = LoadSound("../../assets/pickup.mp3");
     Sound mew = LoadSound("../../assets/mew.wav");
-    Sound pickupSfx = pew;
+
 
     InitWindow(1024, 768, "CS512 Funtime");
     SetTargetFPS(60);
+
+    enemyTex = LoadTexture("../../assets/zombie.png"); //SPRITE
 
     playerPtr = Character::GetPlayer();
 
     GameStates currentState = GameStates::Menu;
     Menu mainMenu(MenuType::Main);
     Menu pauseMenu(MenuType::Pause);
+    Menu settingsMenu(MenuType::Settings);
     MenuType lastMenuType = MenuType::Main;  // remembers where rules came from
     LevelSelect levelSelectMenu ;
 
     int editorSelection = 1;
     int levelIndex = 0;
+    
     bool testing = false;
 
     string selectionNames[4] = {
@@ -69,8 +77,6 @@ int main() {
     Rectangle pauseBtn = {1024 - 100, 768 - 50, 80, 30};
     Rectangle returnBtn = {1024 - 180, 768 - 60, 160, 40};
 
-    //Character::GetPlayer()->SetPosition({400.0, 400.0});
-
     while (!WindowShouldClose() && currentState!= GameStates::Exit) {
 
         switch (currentState) {
@@ -81,14 +87,17 @@ int main() {
                     // Change this to be GameStates::LevelSelect
                     // currentState = GameStates::Game;
                     // GoToLevel(levelIndex);
-                    currentState = GameStates::LevelSelect ;
+                    currentState = GameStates::LevelSelect;
                 }
                 else if (result == MenuResult::StartEditor)
                     currentState = GameStates::Editor;
                 else if (result == MenuResult::Rules) {
                     currentState = GameStates::Rules;
                     lastMenuType = MenuType::Main;
-                } else if (result == MenuResult::Exit)
+                }
+                else if(result == MenuResult::Settings)
+                    currentState = GameStates::Settings;
+                else if (result == MenuResult::Exit)
                     currentState = GameStates::Exit;
             } break;
 
@@ -123,7 +132,7 @@ int main() {
 
                 //collecting coin behavior
                 if (!gameState.timeUp) {
-                    int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickupSfx);
+                    int newlyPicked = Collectibles::Update(collectibles, &playerBox, pickup);
                     gameState.score += newlyPicked * gameState.pointsPerCollectible;
                 }
 
@@ -139,11 +148,12 @@ int main() {
                         currentState = GameStates::Editor;
                     }
                     else {
-                        GoToLevel(++levelIndex);
+                        currentState = GameStates::LevelBeat;
                     }
                 }
 
                 if (playerPtr->dead) {
+                    PlaySound(scream);
                     playerPtr->dead = false;
                     gameState.score = 0;
                     if(testing == true) {
@@ -249,14 +259,24 @@ int main() {
 
             case GameStates::Rules: {
 
-                
-
                 if (CheckCollisionPointRec(GetMousePosition(), returnBtn) &&
                     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     // Return to previous menu
                     currentState = (lastMenuType == MenuType::Pause)
                         ? GameStates::Pause
                         : GameStates::Menu;
+                }
+            } break;
+
+            case GameStates::Settings: {
+                if (settingsMenu.Update() == MenuResult::Resume)
+                    currentState = GameStates::Menu;
+            } break;
+
+            case GameStates::LevelBeat: {
+                if (levelIndex+1 != lastLevel && IsKeyPressed(KEY_ENTER)) {
+                    currentState = GameStates::Game;
+                    GoToLevel(++levelIndex);
                 }
             } break;
 
@@ -267,6 +287,17 @@ int main() {
 
 
         switch (currentState) {
+
+            case GameStates::LevelBeat: {
+                ClearBackground(BLACK);
+                DrawText("YOU BEAT THE LEVEL!", 240, 200, 48, WHITE);
+                if (levelIndex+1 != lastLevel)
+                    DrawText("Press enter to continue....", 300, 400, 32, WHITE);
+                else
+                    DrawText("And you beat the whole game too, good job.", 180, 400, 32, WHITE);
+            } break;
+
+
             case GameStates::Menu: {
                 mainMenu.Draw();
             } break;
@@ -277,34 +308,35 @@ int main() {
 
             case GameStates::Game: {
                 ClearBackground(RAYWHITE);
-            
+
+                Texture2D floorTexture = LoadTexture("../../assets/floor.png");
+
+                for (int i = 0; i < 12; i++) {
+                    for (int j = 0; j < 16; j++) {
+                        DrawTexture(floorTexture, j * 64, i * 64, WHITE);
+                    }
+                }
+
                 displayTilemap();
-            
-                for (auto enemy : enemies)
+
+                for (auto enemy: enemies)
                     enemy->Draw();
-            
+
                 Collectibles::Draw(collectibles);
-            
+
                 playerPtr->Draw();
-            
-                DrawHUD(gameState);   // still draws score & time
-            
-                // ---- New: draw current level label ----
-                int current = GetCurrentLevel();              // 0-based index
-                string levelText = "Level " + to_string(current + 1);
-                DrawText(levelText.c_str(), 20, 60, 30, RED);
-                // ---------------------------------------
-            
+
+                DrawHUD(gameState);
+
                 // Pause button bottom-right
-                if (testing == false) {
+                // Only in actual game and not in editor testing
+
+                if(testing == false) {
                     DrawRectangleRec(pauseBtn, DARKGRAY);
                     DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
                 }
-            
-            } break;
-            
-            
 
+            } break;
 
             case GameStates::Editor: {
                 ClearBackground(RAYWHITE);
@@ -324,14 +356,18 @@ int main() {
 
             case GameStates::Rules: {
                 ClearBackground(DARKBLUE);
-                DrawText("GAME RULES", 300, 120, 40, RAYWHITE);
-                DrawText("1. Rule 1", 240, 200, 25, RAYWHITE);
-                DrawText("2. Rule 2", 260, 240, 25, RAYWHITE);
-                DrawText("3. Rule 3", 280, 280, 25, RAYWHITE);
+                DrawText("GAME RULES", 340, 100, 40, RAYWHITE);
+                DrawText("Rule 1. Use W, A, S, D to move your creature.", 80, 200, 25, RAYWHITE);
+                DrawText("Rule 2. Collect all yellow circles to advance to the next stage.", 70, 280, 25, RAYWHITE);
+                DrawText("Rule 3. Avoid the hungry zombie fellows. They will awake when you draw near.", 60, 360, 25, RAYWHITE);
 
                 DrawRectangleRec(returnBtn, DARKGRAY);
                 DrawText("Return", returnBtn.x + 30, returnBtn.y + 10, 25, WHITE);
 
+            } break;
+
+            case GameStates::Settings: {
+                settingsMenu.Draw();
             } break;
 
             default: break;
@@ -344,7 +380,7 @@ int main() {
 
     // Cleanup
     UnloadSound(scream);
-    UnloadSound(pew);
+    UnloadSound(pickup);
     UnloadSound(mew);
 
     CloseAudioDevice();
@@ -381,7 +417,10 @@ void InitLevel() {
                 }
 
                 if (currTile == 3) {
-                    enemies.push_back(new TestObjectAStar({col * 64.0f + 32, row * 64.0f + 32}));
+                   TestObjectAStar* e = new TestObjectAStar({col * 64.0f + 32, row * 64.0f + 32});
+                    // assign shared spritesheet; false = don't UnloadTexture in destructor
+                    e->setSpriteSheet(enemyTex, false);
+                    enemies.push_back(e);;
                 }
 
                 if (currTile == 4) {

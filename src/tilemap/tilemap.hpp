@@ -2,8 +2,11 @@
 #define TILEMAP_HPP
 
 #include <stack>
+#include "raylib-cpp.hpp"
 
 #define TILE_SIZE 64
+
+
 
 struct cell {
             int parent_i, parent_j ;

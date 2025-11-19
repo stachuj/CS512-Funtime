@@ -28,13 +28,14 @@ void Collectibles::Draw(const std::vector<Collectible>& items) {
     }
 }
 
-int Collectibles::Update(std::vector<Collectible>& items, const Rectangle* playerBoundsOpt, Sound pickupSfx) {
+int Collectibles::Update(std::vector<Collectible>& items, const Rectangle* playerBoundsOpt, Sound pickup) {
     int picked = 0;
     if (playerBoundsOpt) {
         Rectangle pb = *playerBoundsOpt;
         for (auto& c : items) {
             if (!c.active) continue;
             if (CircleRectOverlap(c.pos, c.radius, pb)) {
+                PlaySound(pickup);
                 c.active = false; picked++;
             }
         }
@@ -48,6 +49,6 @@ int Collectibles::Update(std::vector<Collectible>& items, const Rectangle* playe
             }
         }
     }
-    if (picked > 0 && IsAudioDeviceReady()) PlaySound(pickupSfx);
+    if (picked > 0 && IsAudioDeviceReady()) PlaySound(pickup);
     return picked;
 }

@@ -1,11 +1,9 @@
 #include "tilemap.hpp"
-#include "raylib.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <set>
 #include <cfloat>
-
 
 int tilemap[12][16] = {1};
 int tilemapRows = 12;
@@ -25,6 +23,7 @@ For now, sets the perimeter of the tilemap to 1 (walls).
 Can be updated later for a more complex tilemap. 
 */
 void initializeTilemap() {
+
 
     for (int i = 0 ; i < tilemapRows ; i++) {
 
@@ -85,20 +84,27 @@ Makes walls black, and draws an outline around each tile.
 
 void displayTilemap() {
 
+    Texture2D wallTexture1 = LoadTexture("../../assets/wall1.png");
+    Texture2D wallTexture2 = LoadTexture("../../assets/wall2.png");
+
     for (int i = 0 ; i < tilemapRows ; i++) {
 
         for (int j = 0 ; j < tilemapCols ; j++) {
 
-            DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GRAY, 0.1)) ;
+            //DrawRectangleLines(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, ColorAlpha(GRAY, 0.1)) ;
 
             if(tilemap[i][j] == 1) {
 
-                DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, tilemapColors[tilemap[i][j]-1]) ;
+                if (i == tilemapRows-1 || tilemap[i+1][j] == 1)
+                    DrawTexture(wallTexture2, j * TILE_SIZE, i * TILE_SIZE, WHITE);
+                else
+                    DrawTexture(wallTexture1, j * TILE_SIZE, i * TILE_SIZE, WHITE);
 
             }
 
 
         }
+
 
     }
 
@@ -217,7 +223,7 @@ int getTilePos(float pos) {
     return tilePos ;
 }
 
-/*
+/*#include <cstdio>
 Checks area of tilemap the x and y coordinates are in.
 Returns true if it's a wall, false if not. 
 Could maybe update to be more general in the future (return what type of tile).
