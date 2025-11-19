@@ -80,7 +80,7 @@ Finalize our game and sort through any errors.
 |Level select screen|	Javier|	4|
 |Settings Screen|	Kelly|	2|
 |Add more info to the HUD| Pradeepthi|	4|
-|ReadMe file|	Pradeepthi|	1|
+|ReadMe file|	Kelly|	1|
 
   
 **Committed hours:** 29
@@ -107,7 +107,7 @@ Finalize our game and sort through any errors.
 |Level select screen|	Javier|	2|
 |Settings Screen|	Kelly|	1|
 |Add more info to the HUD| Pradeepthi|	2|
-|ReadMe file|	Pradeepthi|	1|
+|ReadMe file|	Kelly|	1|
 
 
   
@@ -154,7 +154,7 @@ Finalize our game and sort through any errors.
 |Level select screen|	Javier|	0|
 |Settings Screen|	Kelly|	0|
 |Add more info to the HUD| Pradeepthi|	0|
-|ReadMe file|	Pradeepthi|	0|
+|ReadMe file|	Kelly|	0|
   
   
 
@@ -186,6 +186,14 @@ line "Actual" [47, 43, 24, 15, 0]
 
 ## 6. Retrospective
 
-We communicated well throughout this sprint, final working game was completed and ready on time.
+What went well:
+
+We communicated better throughout this sprint than others. This was due to an early planning meeting and constant messsaging through Discord that kept everyone on track. 
+
+All pieces came together to complete the final product. We didn't have any parts that we couldn't integrate by the deadline like in some past sprints.
+
+What could be improved:
+
+We could improve on completing things ahead of time rather than finishing up last minute. This can help avoid any confusion on what is left to be completed. 
 
 ---
