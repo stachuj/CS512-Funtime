@@ -13,6 +13,17 @@ enum class MenuResult {
     Resume
 };
 
+enum class GameStates {
+    Menu,
+    LevelSelect,
+    Game,
+    Editor,
+    Pause,
+    Rules,
+    Settings,
+    Exit
+};
+
 enum class MenuType {
     Main,
     Pause,

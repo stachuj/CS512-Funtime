@@ -14,7 +14,7 @@ void TestObjectAStar::Update(float deltaTime) {
 
 
     if (!awake) {
-        if (Vector2Distance(playerPtr->position, position) < 100.0) {
+        if (Vector2Distance(playerPtr->position, position) < 120.0) {
             awake = true;
             pathingTimer = 0.50;
         }

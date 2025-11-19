@@ -39,15 +39,15 @@ int main() {
     LoadLevel(0);
 
     InitAudioDevice();
-    Sound scream = LoadSound("../assets/scream.wav");
-    Sound pickup = LoadSound("../assets/pickup.mp3");
+    Sound scream = LoadSound("../../assets/scream.wav");
+    Sound pickup = LoadSound("../../assets/pickup.mp3");
     Sound mew = LoadSound("../../assets/mew.wav");
 
 
     InitWindow(1024, 768, "CS512 Funtime");
     SetTargetFPS(60);
 
-    enemyTex = LoadTexture("../assets/zombie.png"); //SPRITE
+    enemyTex = LoadTexture("../../assets/zombie.png"); //SPRITE
 
     playerPtr = Character::GetPlayer();
 
