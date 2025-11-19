@@ -3,12 +3,12 @@
 #include "game_state.hpp"
 
 inline void DrawHUD(const GameState& gs) {
-    DrawText(TextFormat("SCORE: %d", gs.score), 10, 10, 28, WHITE);
+    DrawText(TextFormat("SCORE: %d", gs.score), 10, 10, 28, RED);
     const int fontSize = 28;
     int seconds = (int)ceilf(gs.timeRemaining);
     const char* t = TextFormat("TIME: %02d", seconds);
     int w = MeasureText(t, fontSize);
-    DrawText(t, GetScreenWidth()/2 - w/2, 10, fontSize, WHITE);
+    DrawText(t, GetScreenWidth()/2 - w/2, 10, fontSize, RED);
     if (gs.timeUp) {
         const char* msg = "TIME'S UP! PRESS R TO RESTART";
         int mw = MeasureText(msg, 36);

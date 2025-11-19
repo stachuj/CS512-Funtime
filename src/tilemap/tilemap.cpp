@@ -4,6 +4,8 @@
 #include <fstream>
 #include <string>
 #include <set>
+#include <cfloat>
+
 
 int tilemap[12][16] = {1};
 int tilemapRows = 12;

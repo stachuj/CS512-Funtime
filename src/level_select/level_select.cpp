@@ -31,7 +31,7 @@ void LevelSelect::Draw() {
 
     DrawText("Level Select", 310, 150, 60, RAYWHITE);
 
-    DrawText(("Level: " + std::to_string(level + 1)).c_str(), xPos, 280, 30, selected == 0 ? GREEN : GRAY);
+    DrawText(("Level " + std::to_string(level + 1)).c_str(), xPos, 280, 30, selected == 0 ? GREEN : GRAY);
     DrawText("Start", xPos, 330, 30, selected == 1 ? GREEN : GRAY);
     DrawText("Return", xPos, 380, 30, selected == 2 ? GREEN : GRAY);
 }

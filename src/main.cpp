@@ -21,6 +21,8 @@
 #define WINDOW_HEIGHT 768;
 
 using namespace std;
+using std::string;
+using std::to_string;
 
 GameState gameState;                   // holds score & timer
 Character* playerPtr;
@@ -275,27 +277,34 @@ int main() {
 
             case GameStates::Game: {
                 ClearBackground(RAYWHITE);
-
+            
                 displayTilemap();
-
-                for (auto enemy: enemies)
+            
+                for (auto enemy : enemies)
                     enemy->Draw();
-
+            
                 Collectibles::Draw(collectibles);
-
+            
                 playerPtr->Draw();
-
-                DrawHUD(gameState);
-
+            
+                DrawHUD(gameState);   // still draws score & time
+            
+                // ---- New: draw current level label ----
+                int current = GetCurrentLevel();              // 0-based index
+                string levelText = "Level " + to_string(current + 1);
+                DrawText(levelText.c_str(), 20, 60, 30, RED);
+                // ---------------------------------------
+            
                 // Pause button bottom-right
-                // Only in actual game and not in editor testing
-
-                if(testing == false) {
+                if (testing == false) {
                     DrawRectangleRec(pauseBtn, DARKGRAY);
                     DrawText("Pause", pauseBtn.x + 10, pauseBtn.y + 5, 20, WHITE);
                 }
-
+            
             } break;
+            
+            
+
 
             case GameStates::Editor: {
                 ClearBackground(RAYWHITE);
