@@ -25,6 +25,8 @@ MenuResult Menu::Update() {
             if (volume < 0.0f) volume = 0.0f;
             std::cout << "Volume: " << (int)(volume * 100) << "%" << std::endl;
         }
+
+        SetMasterVolume(volume);
     }
 
     // Enter key actions
@@ -46,7 +48,7 @@ MenuResult Menu::Update() {
             if (selected == 1) { // Back
                 type = MenuType::Main;
                 selected = 0;
-                return MenuResult::None;
+                return MenuResult::Resume;
             }
         }
     }

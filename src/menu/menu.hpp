@@ -21,6 +21,7 @@ enum class GameStates {
     Pause,
     Rules,
     Settings,
+    LevelBeat,
     Exit
 };
 
