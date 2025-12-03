@@ -20,7 +20,7 @@
 #define WINDOW_WIDTH 1024;
 #define WINDOW_HEIGHT 768;
 
-int lastLevel = 2;
+int lastLevel = 4;
 
 Texture2D enemyTex = { 0 }; 
 

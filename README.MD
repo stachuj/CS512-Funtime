@@ -1,5 +1,3 @@
-A C++ game built with raylib for CS512.  
-In this game, you traverse through a series of levels, collecting coins to earn points while avoiding enemies found in the map.
 
 ---
 
@@ -16,13 +14,9 @@ In this game, you traverse through a series of levels, collecting coins to earn 
 Make sure you have the following installed:
 
 ##Dependencies
-- C++17 or newer
-- raylib library
-
-## Installing Raylib (Linux / Ubuntu)
-```bash
-sudo apt install libraylib-dev
-```
+- Install GCC compiler to compile source code: [Follow instructions here](https://code.visualstudio.com/docs/cpp/config-mingw)
+- CMake is required to automatically download dependencies and build the project. [Download it here](https://cmake.org/)
+- You can either download the sourcecode from the GitHub webpage or clone using [Git](https://git-scm.com/)
 
 ---
 
