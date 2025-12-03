@@ -6,100 +6,110 @@
 // 30 level slots, 12 rows, 16 columns
 int levels[30][12][16] = {0};
 
+// Index of currently loaded level (0-based)
+static int currentLevel = 0;
+
+// -----------------------------------------------------------------------------
 // Sets tilemap in tilemap.cpp to the specified level
+// -----------------------------------------------------------------------------
 void LoadLevel(int index) {
 
-    for(int row = 0 ; row < 12 ; row++) {
-        for(int col = 0 ; col < 16 ; col++) {
-            setTile(row, col, levels[index][row][col]) ;
+    // Track which level is currently loaded
+    currentLevel = index;
+
+    for (int row = 0; row < 12; row++) {
+        for (int col = 0; col < 16; col++) {
+            setTile(row, col, levels[index][row][col]);
         }
     }
 
-    return ;
+    return;
 }
 
-// Sets specified level to be the same as the tilemap in tilemap.cpp
+// -----------------------------------------------------------------------------
+// Saves the current tilemap back into levels[index]
+// -----------------------------------------------------------------------------
 void SaveLevel(int index) {
 
-    for(int row = 0 ; row < 12 ; row++) {
-        for(int col = 0 ; col < 16 ; col++) {
-            levels[index][row][col] = getTile(row, col) ;
+    for (int row = 0; row < 12; row++) {
+        for (int col = 0; col < 16; col++) {
+            levels[index][row][col] = getTile(row, col);
         }
     }
 
-    return ;
+    return;
 }
 
-// Load set of levels from filename
+// -----------------------------------------------------------------------------
+// Load all 30 levels from a text file (like testLevels.txt)
+// -----------------------------------------------------------------------------
 void LoadFromFile(std::string filename) {
 
-    // first test wit just filename, then try with longer path to levels folder
-    //std::string path = "../../levels/" + filename + ".txt" ;
-    //std::ifstream file(path.c_str()) ;
+    std::ifstream file(filename);
 
-    std::ifstream file(filename.c_str()) ;
+    if (!file.is_open()) {
+        std::cerr << "ERROR: failed to open level file for reading." << std::endl;
+        return;
+    }
 
-    if(file.is_open()) {
-        
-        for(int index = 0 ; index < 30 ; index++) {
+    for (int index = 0; index < 30; index++) {
+        for (int row = 0; row < 12; row++) {
+            for (int col = 0; col < 16; col++) {
 
-            for(int row = 0 ; row < 12 ; row++) {
-
-                for(int col = 0 ; col < 16 ; col++) {
-
-                    file >> levels[index][row][col] ;
-
+                if (!(file >> levels[index][row][col])) {
+                    // If the file ends early, just pad remaining with 0
+                    levels[index][row][col] = 0;
                 }
-
             }
-
         }
-
-        file.close() ;
-
-        std::cout << "File read successfully." ;
-    }
-    else {
-        std::cerr << "ERROR: failed to read levels from file." ;
     }
 
-    return ;
+    file.close();
+
+    return;
 }
 
-// Save set of levels to filename
+// -----------------------------------------------------------------------------
+// Save all 30 levels back to a text file (like testLevels.txt)
+// -----------------------------------------------------------------------------
 void SaveToFile(std::string filename) {
-    
-    std::ofstream file(filename.c_str(), std::ofstream::trunc) ;
 
-    if(file.is_open()) {
+    std::ofstream file(filename);
 
-        for(int index = 0 ; index < 30 ; index++) {
+    if (!file.is_open()) {
+        std::cerr << "ERROR: failed to save levels to file." << std::endl;
+        return;
+    }
 
-            for(int row = 0 ; row < 12 ; row++) {
+    for (int index = 0; index < 30; index++) {
 
-                for(int col = 0 ; col < 16 ; col++) {
+        for (int row = 0; row < 12; row++) {
 
-                    file << levels[index][row][col] << " " ;
+            for (int col = 0; col < 16; col++) {
 
-                }
-
-                file << std::endl ;
+                file << levels[index][row][col] << " ";
 
             }
 
-            file << std::endl ;
-            file << std::endl ;
+            file << std::endl;
 
         }
 
-        file.close() ;
-
-        std::cout << "File saved successfully." ;
+        file << std::endl;
+        file << std::endl;
 
     }
-    else {
-        std::cerr << "ERROR: failed to save levels to file." ;
-    }
 
-    return ;
+    file.close();
+
+    std::cout << "File saved successfully." << std::endl;
+
+    return;
+}
+
+// -----------------------------------------------------------------------------
+// New helper: query which level is currently loaded (0-based index)
+// -----------------------------------------------------------------------------
+int GetCurrentLevel() {
+    return currentLevel;
 }

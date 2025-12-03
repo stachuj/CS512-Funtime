@@ -25,6 +25,8 @@ int lastLevel = 4;
 Texture2D enemyTex = { 0 }; 
 
 using namespace std;
+using std::string;
+using std::to_string;
 
 GameState gameState;                   // holds score & timer
 Character* playerPtr;

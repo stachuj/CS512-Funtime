@@ -1,85 +1,72 @@
 cmake_minimum_required(VERSION 3.11)
-
 get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
-project(${ProjectId} LANGUAGES CXX)
+project(${ProjectId})
 
 set(CMAKE_CXX_STANDARD 23)
+
+# Generate compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Dependencies
 set(RAYLIB_VERSION 5.5)
-find_package(raylib ${RAYLIB_VERSION} QUIET)
-
-include(FetchContent)
-
-if (NOT raylib_FOUND)
-  # set options before fetching/building raylib
-  set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+find_package(raylib ${RAYLIB_VERSION} QUIET) # QUIET or REQUIRED
+if (NOT raylib_FOUND) # If there's none, fetch and build raylib
+  include(FetchContent)
   FetchContent_Declare(
     raylib
     DOWNLOAD_EXTRACT_TIMESTAMP OFF
     URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
   )
   FetchContent_GetProperties(raylib)
-  if(NOT raylib_POPULATED)
+  if (NOT raylib_POPULATED) # Have we downloaded raylib yet?
     set(FETCHCONTENT_QUIET NO)
     FetchContent_MakeAvailable(raylib)
+    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # don't build the supplied examples
   endif()
 endif()
 
-# raylib-cpp (wrapper)
 FetchContent_Declare(
   raylib-cpp
   GIT_REPOSITORY https://github.com/RobLoach/raylib-cpp.git
-  GIT_TAG        master
+  GIT_TAG        master # or specify a specific tag/commit if needed
 )
-FetchContent_GetProperties(raylib-cpp)
-if(NOT raylib-cpp_POPULATED)
-  set(FETCHCONTENT_QUIET NO)
-  FetchContent_MakeAvailable(raylib-cpp)
-endif()
+FetchContent_MakeAvailable(raylib-cpp)
 
-# Sources & includes
-file(GLOB_RECURSE project_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-file(GLOB_RECURSE project_HEADERS CONFIGURE_DEPENDS "src/*.hpp")
+# Our Project
 
-set(project_INCLUDE_DIRS "include")
-foreach(_headerFile ${project_HEADERS})
+file (GLOB_RECURSE project_SOURCES CONFIGURE_DEPENDS "src/*.cpp")
+file (GLOB_RECURSE project_HEADERS CONFIGURE_DEPENDS "src/*.hpp")
+
+set (project_INCLUDE_DIRS "include")
+foreach (_headerFile ${project_HEADERS})
   get_filename_component(_dir ${_headerFile} PATH)
   list (APPEND project_INCLUDE_DIRS ${_dir})
 endforeach()
 
 add_executable(${PROJECT_NAME} ${project_SOURCES})
-
-# Link raylib (the imported/created target) — use raylib::raylib if that exists
-if (TARGET raylib)
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
-elseif (TARGET raylib::raylib)
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib::raylib)
-else()
-  # fallback: try linking plain "raylib" (may work when find_package produced variables)
-  target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
-endif()
-
-# Platform-specific libraries
-if(WIN32)
-  target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32)
-endif()
-
-# Include dirs: raylib-cpp include, project include dirs
-if (DEFINED raylib-cpp_SOURCE_DIR)
-  target_include_directories(${PROJECT_NAME} PRIVATE ${raylib-cpp_SOURCE_DIR}/include)
-endif()
+target_link_libraries(${PROJECT_NAME} raylib ws2_32)
+target_include_directories(${PROJECT_NAME} PRIVATE ${raylib-cpp_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${project_INCLUDE_DIRS})
 
-# Web/Emscripten: prefer checking EMSCRIPTEN flag
-if (EMSCRIPTEN)
-  set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
+#add_executable(server src/shared.cpp src/server.c)
+#target_link_libraries(server raylib ws2_32)
+#target_include_directories(server PRIVATE ${raylib-cpp_SOURCE_DIR}/include)
+#target_include_directories(server PRIVATE ${project_INCLUDE_DIRS})
+
+#target_include_directories(server PRIVATE ${project_INCLUDE_DIRS})
+#set(raylib_VERBOSE 1)
+
+
+# Web Configurations
+if (${PLATFORM} STREQUAL "Web")
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html") # Tell Emscripten to build an example.html file.
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_GLFW=3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY -s GL_ENABLE_GET_PROC_ADDRESS=1")
 endif()
 
-# macOS frameworks
+# Checks if OSX and links appropriate frameworks (Only required on MacOS)
 if (APPLE)
-  target_link_libraries(${PROJECT_NAME} PRIVATE "-framework IOKit" "-framework Cocoa" "-framework OpenGL")
+    target_link_libraries(${PROJECT_NAME} "-framework IOKit")
+    target_link_libraries(${PROJECT_NAME} "-framework Cocoa")
+    target_link_libraries(${PROJECT_NAME} "-framework OpenGL")
 endif()
