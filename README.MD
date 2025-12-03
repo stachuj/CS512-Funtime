@@ -11,9 +11,7 @@
 
 ## Requirements
 
-Make sure you have the following installed:
-
-##Dependencies
+### Make sure you have the following installed:
 - Install GCC compiler to compile source code: [Follow instructions here](https://code.visualstudio.com/docs/cpp/config-mingw)
 - CMake is required to automatically download dependencies and build the project. [Download it here](https://cmake.org/)
 - You can either download the sourcecode from the GitHub webpage or clone using [Git](https://git-scm.com/)
