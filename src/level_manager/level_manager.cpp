@@ -14,6 +14,9 @@ static int currentLevel = 0;
 // -----------------------------------------------------------------------------
 void LoadLevel(int index) {
 
+    if (index < 0 || index > 29)
+        return;
+
     // Track which level is currently loaded
     currentLevel = index;
 

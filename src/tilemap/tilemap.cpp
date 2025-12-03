@@ -254,6 +254,8 @@ int getTile(int row, int col) {
 }
 
 void setTile(int row, int col, int value) {
+    if (row < 0 || row > 11 || col < 0 || col > 15)
+        return;
     tilemap[row][col] = value;
 }
 
